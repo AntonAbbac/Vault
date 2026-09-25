@@ -1,0 +1,794 @@
+{
+  "choices": [
+    {
+      "id": "f9ba6b76-e6f3-4f7a-81ed-6133f5dd09da",
+      "name": "Index",
+      "type": "Macro",
+      "command": true,
+      "runOnStartup": true,
+      "macro": {
+        "name": "New macro",
+        "id": "34164cea-6425-4bf3-9d51-aaae7f2c1649",
+        "commands": [
+          {
+            "name": "QuickAdd: Workspaces",
+            "type": "Obsidian",
+            "id": "de51c089-6c56-46a8-b9a7-27762d0abcc0",
+            "commandId": "quickadd:choice:9ed4108d-d082-466e-b149-923078bfaab2"
+          }
+        ]
+      },
+      "icon": "file-text"
+    },
+    {
+      "id": "bdfea699-b301-4bfb-bf1e-55b8775284c0",
+      "name": "Quick actions",
+      "type": "Multi",
+      "command": true,
+      "choices": [
+        {
+          "id": "af519537-a7bf-4727-bfd8-c7ccff9d6652",
+          "name": "Task",
+          "type": "Macro",
+          "command": true,
+          "runOnStartup": false,
+          "macro": {
+            "name": "Task",
+            "id": "bd8ff797-b66a-4425-bd4a-08cac97b76f8",
+            "commands": [
+              {
+                "name": "BeautyTasks: New task",
+                "type": "Obsidian",
+                "id": "f18d08e4-f951-41f5-b09f-278740a43e60",
+                "commandId": "beautytasks:new-task"
+              }
+            ]
+          },
+          "icon": "check"
+        },
+        {
+          "id": "periodics-group",
+          "name": "Journaling",
+          "type": "Multi",
+          "command": false,
+          "choices": [
+            {
+              "id": "e6b871d9-cf44-47dc-8a89-d4c5a5338f6d",
+              "name": "Daily Note",
+              "type": "Template",
+              "command": true,
+              "templatePath": "00 System/Templates/Daily Note.md",
+              "fileNameFormat": {
+                "enabled": true,
+                "format": "{{DATE:YYYY-MM-DD}}"
+              },
+              "folder": {
+                "enabled": true,
+                "folders": [
+                  "10 Periodic"
+                ],
+                "chooseWhenCreatingNote": false,
+                "createInSameFolderAsActiveFile": false,
+                "chooseFromSubfolders": false
+              },
+              "appendLink": false,
+              "openFile": true,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "fileExistsBehavior": {
+                "kind": "apply",
+                "mode": "doNothing"
+              },
+              "icon": "sun"
+            },
+            {
+              "id": "7dbf0641-2756-45bb-bd28-57f37e3bd62e",
+              "name": "Weekly Note",
+              "type": "Template",
+              "command": true,
+              "templatePath": "00 System/Templates/Weekly Note.md",
+              "fileNameFormat": {
+                "enabled": true,
+                "format": "{{DATE:YYYY-[W]-WW}}"
+              },
+              "folder": {
+                "enabled": true,
+                "folders": [
+                  "10 Periodic"
+                ],
+                "chooseWhenCreatingNote": false,
+                "createInSameFolderAsActiveFile": false,
+                "chooseFromSubfolders": false
+              },
+              "appendLink": false,
+              "openFile": true,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "fileExistsBehavior": {
+                "kind": "apply",
+                "mode": "doNothing"
+              },
+              "icon": "calendar"
+            },
+            {
+              "id": "6e29e75a-b74b-436d-b41f-f10a6ba45abc",
+              "name": "Monthly Note",
+              "type": "Template",
+              "command": true,
+              "templatePath": "00 System/Templates/Monthly Note.md",
+              "fileNameFormat": {
+                "enabled": true,
+                "format": "{{DATE:YYYY-MM}}"
+              },
+              "folder": {
+                "enabled": true,
+                "folders": [
+                  "10 Periodic"
+                ],
+                "chooseWhenCreatingNote": false,
+                "createInSameFolderAsActiveFile": false,
+                "chooseFromSubfolders": false
+              },
+              "appendLink": false,
+              "openFile": true,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "fileExistsBehavior": {
+                "kind": "apply",
+                "mode": "doNothing"
+              },
+              "icon": "alarm-clock"
+            },
+            {
+              "id": "babbe7bf-a815-4eba-b2af-bd2780d003ed",
+              "name": "Quarterly Note",
+              "type": "Template",
+              "command": true,
+              "templatePath": "00 System/Templates/Quarterly Note.md",
+              "fileNameFormat": {
+                "enabled": true,
+                "format": "{{DATE:YYYY-[Q]Q}}"
+              },
+              "folder": {
+                "enabled": true,
+                "folders": [
+                  "10 Periodic"
+                ],
+                "chooseWhenCreatingNote": false,
+                "createInSameFolderAsActiveFile": false,
+                "chooseFromSubfolders": false
+              },
+              "appendLink": false,
+              "openFile": true,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "fileExistsBehavior": {
+                "kind": "apply",
+                "mode": "doNothing"
+              },
+              "icon": "alarm-check"
+            }
+          ],
+          "collapsed": true,
+          "icon": "calendar"
+        },
+        {
+          "id": "4f624dd5-6cfc-4126-9472-40cfdf39fc53",
+          "name": "Work",
+          "type": "Multi",
+          "command": false,
+          "choices": [
+            {
+              "id": "02985687-12ee-4784-9648-30b3cde7b71d",
+              "name": "Work Capture",
+              "type": "Template",
+              "command": true,
+              "templatePath": "00 System/Templates/Work Note.md",
+              "fileNameFormat": {
+                "enabled": true,
+                "format": "{{Value:Problem}} {{DATE:YYYY-MM-DD-HHmm}}"
+              },
+              "discoverExistingNotesBeforeCreate": false,
+              "folder": {
+                "enabled": true,
+                "folders": [
+                  "30 Routine & Tasks"
+                ],
+                "chooseWhenCreatingNote": false,
+                "createInSameFolderAsActiveFile": false,
+                "chooseFromSubfolders": false
+              },
+              "appendLink": false,
+              "copyLinkToClipboard": false,
+              "openFile": true,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "fileExistsBehavior": {
+                "kind": "prompt"
+              },
+              "icon": "wallet"
+            }
+          ],
+          "collapsed": true
+        },
+        {
+          "id": "ed549d74-e0e4-4247-a4d3-e5cf0bb36e5b",
+          "name": "Personal",
+          "type": "Multi",
+          "command": false,
+          "choices": [
+            {
+              "id": "04f784d0-1587-4428-918b-16e6b5fa6575",
+              "name": "Plan Note",
+              "type": "Template",
+              "command": false,
+              "onePageInput": "always",
+              "templatePath": "00 System/Templates/Plan Note.md",
+              "fileNameFormat": {
+                "enabled": true,
+                "format": "{{VALUE:Plan Name}}"
+              },
+              "discoverExistingNotesBeforeCreate": false,
+              "folder": {
+                "enabled": true,
+                "folders": [
+                  "40 Plans"
+                ],
+                "chooseWhenCreatingNote": false,
+                "createInSameFolderAsActiveFile": false,
+                "chooseFromSubfolders": false
+              },
+              "appendLink": false,
+              "copyLinkToClipboard": false,
+              "openFile": true,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "fileExistsBehavior": {
+                "kind": "prompt"
+              },
+              "icon": "box"
+            },
+            {
+              "id": "78c44d01-1efe-4ec0-8582-cd7782aa509c",
+              "name": "Profile Note",
+              "type": "Template",
+              "command": false,
+              "templatePath": "00 System/Templates/Profile Note.md",
+              "fileNameFormat": {
+                "enabled": true,
+                "format": "{{VALUE:Person Name}}"
+              },
+              "discoverExistingNotesBeforeCreate": false,
+              "folder": {
+                "enabled": true,
+                "folders": [
+                  "50 People"
+                ],
+                "chooseWhenCreatingNote": false,
+                "createInSameFolderAsActiveFile": false,
+                "chooseFromSubfolders": false
+              },
+              "appendLink": false,
+              "copyLinkToClipboard": false,
+              "openFile": true,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "fileExistsBehavior": {
+                "kind": "prompt"
+              },
+              "icon": "person-standing"
+            },
+            {
+              "id": "2854301c-d338-40d6-9b26-40ffcc2acc83",
+              "name": "Daily Entry",
+              "type": "Capture",
+              "command": true,
+              "appendLink": false,
+              "captureTo": "10 Periodic/{{DATE:YYYY-MM-DD}}",
+              "captureToActiveFile": false,
+              "captureToCanvasNodeId": "",
+              "activeFileWritePosition": "cursor",
+              "createFileIfItDoesntExist": {
+                "enabled": true,
+                "createWithTemplate": true,
+                "template": "00 System/Templates/Daily Note.md"
+              },
+              "format": {
+                "enabled": true,
+                "format": "\n{{VALUE:What's happening?}} ({{time}})\n"
+              },
+              "insertAfter": {
+                "enabled": true,
+                "after": "## Outcome",
+                "insertAtEnd": true,
+                "considerSubsections": false,
+                "createIfNotFound": true,
+                "createIfNotFoundLocation": "bottom",
+                "inline": false,
+                "replaceExisting": false,
+                "blankLineAfterMatchMode": "none",
+                "promptHeading": false
+              },
+              "newLineCapture": {
+                "enabled": false,
+                "direction": "below"
+              },
+              "prepend": false,
+              "task": false,
+              "openFile": false,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "templater": {
+                "afterCapture": "wholeFile"
+              },
+              "insertBefore": {
+                "enabled": false,
+                "before": "",
+                "createIfNotFound": false,
+                "createIfNotFoundLocation": "top"
+              }
+            },
+            {
+              "id": "2534c3ef-4ec1-4f2e-9b81-53326480a222",
+              "name": "Profile Entry",
+              "type": "Capture",
+              "command": false,
+              "onePageInput": "never",
+              "appendLink": false,
+              "copyLinkToClipboard": false,
+              "captureTo": "50 People/{{FILE:50 People|label:Pick a person|}}",
+              "captureToActiveFile": false,
+              "captureToCanvasNodeId": "",
+              "activeFileWritePosition": "cursor",
+              "createFileIfItDoesntExist": {
+                "enabled": true,
+                "createWithTemplate": true,
+                "template": "00 System/Templates/Profile Note.md"
+              },
+              "format": {
+                "enabled": true,
+                "format": "- {{DATE:YYYY-MM-DD}}: {{VALUE:Observation}}\n"
+              },
+              "insertAfter": {
+                "enabled": true,
+                "after": "## 5. OBSERVATIONS & CHRONOLOGY",
+                "insertAtEnd": true,
+                "considerSubsections": false,
+                "createIfNotFound": true,
+                "createIfNotFoundLocation": "bottom",
+                "inline": false,
+                "replaceExisting": false,
+                "blankLineAfterMatchMode": "none",
+                "promptHeading": false
+              },
+              "insertBefore": {
+                "enabled": false,
+                "before": "## 5. OBSERVATIONS & CHRONOLOGY",
+                "createIfNotFound": true,
+                "createIfNotFoundLocation": "bottom"
+              },
+              "newLineCapture": {
+                "enabled": false,
+                "direction": "below"
+              },
+              "prepend": false,
+              "task": false,
+              "openFile": false,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "templater": {
+                "afterCapture": "none"
+              },
+              "icon": "lucide-pencil"
+            }
+          ],
+          "collapsed": true
+        },
+        {
+          "id": "35c65213-2794-45b2-bcdb-009399100ff4",
+          "name": "Back",
+          "type": "Macro",
+          "command": false,
+          "runOnStartup": false,
+          "macro": {
+            "name": "Back",
+            "id": "42fd67cd-0b0a-4e28-a4aa-dca23060ca5f",
+            "commands": [
+              {
+                "name": "QuickAdd: Index",
+                "type": "Obsidian",
+                "id": "8cc347a6-eaa9-4fb4-88b6-3cc803feb0b5",
+                "commandId": "quickadd:choice:f9ba6b76-e6f3-4f7a-81ed-6133f5dd09da"
+              }
+            ]
+          },
+          "icon": "arrow-left"
+        }
+      ],
+      "collapsed": true,
+      "placeholder": "Templates? Captures? Workspaces?",
+      "icon": "settings"
+    },
+    {
+      "id": "9ed4108d-d082-466e-b149-923078bfaab2",
+      "name": "Workspaces",
+      "type": "Multi",
+      "command": true,
+      "choices": [
+        {
+          "id": "d75d83f6-6eec-43f2-b6f4-70f15ca2a698",
+          "name": "Mobile",
+          "type": "Multi",
+          "command": false,
+          "choices": [
+            {
+              "id": "cf70a370-6fb5-4f93-9158-ff775cc8a13d",
+              "name": "default",
+              "type": "Macro",
+              "command": false,
+              "runOnStartup": false,
+              "macro": {
+                "name": "default",
+                "id": "4a82bb99-0187-4890-81ac-d38030858a77",
+                "commands": [
+                  {
+                    "name": "Workspaces Plus: Load: default-mobile",
+                    "type": "Obsidian",
+                    "id": "8b57378b-53dc-4b7d-8312-da8eb0f6b04e",
+                    "commandId": "workspaces-plus:default-mobile"
+                  },
+                  {
+                    "name": "QuickAdd: Quick actions",
+                    "type": "Obsidian",
+                    "id": "b41a63c4-2156-423b-acdf-b8e11dd054f8",
+                    "commandId": "quickadd:choice:bdfea699-b301-4bfb-bf1e-55b8775284c0"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "f966d133-ffcb-4661-92ae-f3c712f2649a",
+              "name": "planner",
+              "type": "Macro",
+              "command": false,
+              "runOnStartup": false,
+              "macro": {
+                "name": "planner",
+                "id": "4c7e9ca1-f5e8-4aeb-bccb-675078240fe9",
+                "commands": [
+                  {
+                    "name": "Workspaces Plus: Load: planner-mobile",
+                    "type": "Obsidian",
+                    "id": "486a48f6-c3e7-4273-8ae0-3295b9977e83",
+                    "commandId": "workspaces-plus:planner-mobile"
+                  },
+                  {
+                    "name": "QuickAdd: Quick actions",
+                    "type": "Obsidian",
+                    "id": "14d37fa5-dc1d-4224-8a9e-f81f56b11648",
+                    "commandId": "quickadd:choice:bdfea699-b301-4bfb-bf1e-55b8775284c0"
+                  }
+                ]
+              }
+            }
+          ],
+          "collapsed": true,
+          "icon": "smartphone"
+        },
+        {
+          "id": "eb8d87cf-6a4d-49df-93b4-de00c1dc401c",
+          "name": "Desktop",
+          "type": "Multi",
+          "command": false,
+          "choices": [
+            {
+              "id": "fb307fa7-29f4-4c89-b9b7-65e1ca6bb337",
+              "name": "default",
+              "type": "Macro",
+              "command": false,
+              "runOnStartup": false,
+              "macro": {
+                "name": "default",
+                "id": "8bd73348-473b-4ad1-a453-99f34367f084",
+                "commands": [
+                  {
+                    "name": "Workspaces Plus: Load: default",
+                    "type": "Obsidian",
+                    "id": "6ec48f60-077f-4732-a1b1-ce1ec9cc428d",
+                    "commandId": "workspaces-plus:default"
+                  },
+                  {
+                    "name": "QuickAdd: Quick actions",
+                    "type": "Obsidian",
+                    "id": "400f2ef6-0754-4057-8771-8147f902a216",
+                    "commandId": "quickadd:choice:bdfea699-b301-4bfb-bf1e-55b8775284c0"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "da93547f-106b-4d5f-b9fd-a22f651533a6",
+              "name": "planner",
+              "type": "Macro",
+              "command": false,
+              "runOnStartup": false,
+              "macro": {
+                "name": "planner",
+                "id": "87d493f3-7436-49f2-9fc3-eb2bb7331288",
+                "commands": [
+                  {
+                    "name": "Workspaces Plus: Load: planner",
+                    "type": "Obsidian",
+                    "id": "cad76cee-f240-4271-91d7-61fd86e796d4",
+                    "commandId": "workspaces-plus:planner"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "255f8779-2828-4ad3-8ea8-6e2080daba00",
+              "name": "tasks",
+              "type": "Macro",
+              "command": false,
+              "runOnStartup": false,
+              "macro": {
+                "name": "tasks",
+                "id": "18f6847c-6f74-4da2-9d59-0abeed931d96",
+                "commands": [
+                  {
+                    "name": "Workspaces Plus: Load: tasks",
+                    "type": "Obsidian",
+                    "id": "6f075875-a5d8-4ca1-ae5f-32a4001ad9cf",
+                    "commandId": "workspaces-plus:tasks"
+                  }
+                ]
+              }
+            }
+          ],
+          "collapsed": false,
+          "icon": "cpu"
+        }
+      ],
+      "collapsed": false,
+      "icon": "folder-minus"
+    }
+  ],
+  "inputPrompt": "multi-line",
+  "persistInputPromptDrafts": true,
+  "useSelectionAsCaptureValue": true,
+  "namePastedImagesAfterNoteTitle": false,
+  "searchNestedChoices": true,
+  "templateFolderLauncherRow": "off",
+  "devMode": false,
+  "templateFolderPaths": [
+    "00 System/Templates"
+  ],
+  "announceUpdates": "all",
+  "version": "2.27.0",
+  "globalVariables": {},
+  "onePageInputEnabled": true,
+  "disableOnlineFeatures": true,
+  "enableUriCallbacks": false,
+  "enableRibbonIcon": true,
+  "showCaptureNotification": true,
+  "showInputCancellationNotification": true,
+  "enableTemplatePropertyTypes": true,
+  "dateAliases": {
+    "t": "today",
+    "tm": "tomorrow",
+    "yd": "yesterday",
+    "nw": "next week",
+    "nm": "next month",
+    "ny": "next year",
+    "lw": "last week",
+    "lm": "last month",
+    "ly": "last year"
+  },
+  "ai": {
+    "defaultModel": "Ask me",
+    "defaultSystemPrompt": "As an AI assistant within Obsidian, your primary goal is to help users manage their ideas and knowledge more effectively. Format your responses using Markdown syntax. Please use the [[Obsidian]] link format. You can write aliases for the links by writing [[Obsidian|the alias after the pipe symbol]]. To use mathematical notation, use LaTeX syntax. LaTeX syntax for larger equations should be on separate lines, surrounded with double dollar signs ($$). You can also inline math expressions by wrapping it in $ symbols. For example, use $$w_{ij}^{\\text{new}}:=w_{ij}^{\\text{current}}+\\eta\\cdot\\delta_j\\cdot x_{ij}$$ on a separate line, but you can write \"($\\eta$ = learning rate, $\\delta_j$ = error term, $x_{ij}$ = input)\" inline.",
+    "promptTemplatesFolderPath": "",
+    "showAssistant": true,
+    "providers": [
+      {
+        "name": "OpenAI",
+        "endpoint": "https://api.openai.com/v1",
+        "apiKey": "",
+        "models": [
+          {
+            "name": "gpt-3.5-turbo",
+            "maxTokens": 4096
+          },
+          {
+            "name": "gpt-3.5-turbo-16k",
+            "maxTokens": 16384
+          },
+          {
+            "name": "gpt-4",
+            "maxTokens": 8192
+          },
+          {
+            "name": "gpt-4-turbo",
+            "maxTokens": 128000
+          },
+          {
+            "name": "gpt-4o",
+            "maxTokens": 128000,
+            "maxOutputTokens": 16384,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gpt-4o-mini",
+            "maxTokens": 128000,
+            "maxOutputTokens": 16384,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gpt-5.5",
+            "maxTokens": 1050000,
+            "maxOutputTokens": 128000,
+            "supportsTemperature": false
+          },
+          {
+            "name": "gpt-5.4",
+            "maxTokens": 1050000,
+            "maxOutputTokens": 128000,
+            "supportsTemperature": false
+          },
+          {
+            "name": "gpt-5.4-mini",
+            "maxTokens": 400000,
+            "maxOutputTokens": 128000,
+            "supportsTemperature": false
+          },
+          {
+            "name": "gpt-5.4-nano",
+            "maxTokens": 400000,
+            "maxOutputTokens": 128000,
+            "supportsTemperature": false
+          },
+          {
+            "name": "gpt-4.1",
+            "maxTokens": 1047576,
+            "maxOutputTokens": 32768,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gpt-4.1-mini",
+            "maxTokens": 1047576,
+            "maxOutputTokens": 32768,
+            "supportsTemperature": true
+          },
+          {
+            "name": "o3",
+            "maxTokens": 200000,
+            "maxOutputTokens": 100000,
+            "supportsTemperature": false
+          },
+          {
+            "name": "o4-mini",
+            "maxTokens": 200000,
+            "maxOutputTokens": 100000,
+            "supportsTemperature": false
+          }
+        ],
+        "autoSyncModels": true,
+        "modelSource": "modelsDev",
+        "id": "openai"
+      },
+      {
+        "name": "Gemini",
+        "endpoint": "https://generativelanguage.googleapis.com",
+        "apiKey": "",
+        "models": [
+          {
+            "name": "gemini-3.5-flash",
+            "maxTokens": 1048576,
+            "maxOutputTokens": 65536,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gemini-3.1-pro-preview",
+            "maxTokens": 1048576,
+            "maxOutputTokens": 65536,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gemini-3.1-flash-lite",
+            "maxTokens": 1048576,
+            "maxOutputTokens": 65536,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gemini-3-pro-preview",
+            "maxTokens": 1048576,
+            "maxOutputTokens": 65536,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gemini-3-flash-preview",
+            "maxTokens": 1048576,
+            "maxOutputTokens": 65536,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gemini-2.5-pro",
+            "maxTokens": 1048576,
+            "maxOutputTokens": 65536,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gemini-2.5-flash",
+            "maxTokens": 1048576,
+            "maxOutputTokens": 65536,
+            "supportsTemperature": true
+          },
+          {
+            "name": "gemini-2.5-flash-lite",
+            "maxTokens": 1048576,
+            "maxOutputTokens": 65536,
+            "supportsTemperature": true
+          }
+        ],
+        "autoSyncModels": true,
+        "modelSource": "modelsDev",
+        "id": "gemini"
+      }
+    ]
+  },
+  "migrations": {
+    "migrateToMacroIDFromEmbeddedMacro": true,
+    "useQuickAddTemplateFolder": true,
+    "incrementFileNameSettingMoveToDefaultBehavior": true,
+    "mutualExclusionInsertAfterAndWriteToBottomOfFile": true,
+    "setVersionAfterUpdateModalRelease": true,
+    "addDefaultAIProviders": true,
+    "removeMacroIndirection": true,
+    "migrateFileOpeningSettings": true,
+    "backfillFileOpeningDefaults": true,
+    "setProviderModelDiscoveryMode": true,
+    "migrateProviderApiKeysToSecretStorage": true,
+    "consolidateFileExistsBehavior": true,
+    "repairTemplateFileExistsBehavior": true,
+    "migrateToMultipleTemplateFolders": true,
+    "refreshStaleDefaultModelSeeds": true,
+    "pinAiModelRefs": true
+  },
+  "macros": []
+}

@@ -1,0 +1,36 @@
+
+*.md
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pdf
+*.canvas
+*.json
+*.csv
+*.m4a
+
+
+!README.md
+!LICENSE
+!00 System/Attachments/blue_castle.png
+!00 System/Bases/*
+!00 System/Templates/*
+!00 System/Dashboards/Main Dashboard.md
+
+
+!.obsidian/
+!.obsidian/**
+
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache/
+.obsidian/indexedDB/
+
+
+.DS_Store
+Thumbs.db
+
+
+!.gitkeep

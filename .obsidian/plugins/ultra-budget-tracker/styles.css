@@ -1,0 +1,575 @@
+.finance-automation-process-icon.is-processing svg {
+  animation: finance-automation-spin 0.9s linear infinite;
+}
+
+.finance-automation-process-icon.is-processing {
+  color: var(--interactive-accent);
+}
+
+@keyframes finance-automation-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finance-automation-process-icon.is-processing svg {
+    animation: none;
+  }
+}
+
+/* ---------- Budget UI tokens ---------- */
+.finance-budget {
+  --fin-gap: 12px;
+  --fin-radius: 12px;
+  --fin-row-height: 60px;
+  --fin-touch: 44px;
+  --fin-money-out: #dc2626;
+  --fin-money-in: #059669;
+  --fin-money-neutral: var(--text-muted);
+  --fin-warn: #d97706;
+  --fin-over: #dc2626;
+  --fin-surface: var(--background-primary);
+  --fin-raised: var(--background-secondary);
+  --fin-border: var(--background-modifier-border);
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--fin-surface);
+  color: var(--text-normal);
+  container-type: inline-size;
+}
+
+.theme-dark .finance-budget {
+  --fin-money-out: #f87171;
+  --fin-money-in: #34d399;
+  --fin-warn: #fbbf24;
+  --fin-over: #f87171;
+}
+
+.finance-budget .fin-amount {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.finance-budget .fin-out { color: var(--fin-money-out); }
+.finance-budget .fin-in { color: var(--fin-money-in); }
+.finance-budget .fin-neutral { color: var(--fin-money-neutral); }
+
+/* ---------- tab bar ---------- */
+.fin-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px var(--fin-gap);
+  border-bottom: 1px solid var(--fin-border);
+  flex: 0 0 auto;
+}
+
+.fin-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 6px;
+  min-height: var(--fin-touch);
+  border: none;
+  border-radius: var(--fin-radius);
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.fin-tab:hover { opacity: 0.8; }
+
+.fin-tab.is-active {
+  background: var(--fin-raised);
+  color: var(--text-normal);
+}
+
+.fin-tab-icon { display: flex; flex: 0 0 auto; }
+.fin-tab-icon svg { width: 16px; height: 16px; }
+.fin-tab-label, .fin-tab-label-short {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fin-tab-label-short { display: none; }
+
+/* Five tabs never fit in a row on a phone as text alone: stack the icon over
+   a short label so the bar stays one screen wide. */
+@container (max-width: 520px) {
+  .fin-tabs { gap: 2px; padding: 6px 8px; }
+  .fin-tab { flex-direction: column; gap: 2px; padding: 4px 2px; font-size: 0.7em; }
+  .fin-tab-label { display: none; }
+  .fin-tab-label-short { display: block; max-width: 100%; }
+}
+
+.fin-tab-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finance-budget * { transition: none !important; animation: none !important; }
+}
+
+/* ---------- period picker ---------- */
+.fin-period { padding: var(--fin-gap); display: flex; flex-direction: column; gap: 8px; }
+
+.fin-period-stepper {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+
+.fin-period-label {
+  flex: 1; min-height: var(--fin-touch);
+  border: none; background: transparent;
+  color: var(--text-normal); font-size: 1.15em; font-weight: 700;
+  cursor: pointer; border-radius: var(--fin-radius);
+}
+
+.fin-period-label:hover { background: var(--fin-raised); }
+
+.fin-icon-button {
+  display: grid; place-items: center;
+  width: var(--fin-touch); height: var(--fin-touch);
+  border: none; border-radius: var(--fin-radius);
+  background: transparent; color: var(--text-muted); cursor: pointer;
+}
+
+.fin-icon-button:hover { background: var(--fin-raised); color: var(--text-normal); }
+.fin-icon-button.is-hidden { visibility: hidden; }
+
+.fin-chip-row {
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.fin-chip-row::-webkit-scrollbar { display: none; }
+
+.fin-chip {
+  flex: 0 0 auto; min-height: 34px; padding: 0 12px;
+  border: 1px solid var(--fin-border); border-radius: 999px;
+  background: transparent; color: var(--text-muted);
+  font-size: 0.85em; white-space: nowrap; cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.fin-chip.is-active {
+  background: var(--interactive-accent);
+  border-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+/* The header stays pinned while only the list below it scrolls. */
+.fin-header {
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--fin-border);
+}
+
+/* ---------- filter bar ---------- */
+.fin-filter-bar { padding: 0 var(--fin-gap) var(--fin-gap); display: flex; flex-direction: column; gap: 8px; }
+
+.fin-search { position: relative; display: flex; align-items: center; }
+
+.fin-search-icon {
+  position: absolute; left: 10px; display: grid; place-items: center;
+  color: var(--text-muted); pointer-events: none;
+}
+
+.fin-search-input {
+  width: 100%; min-height: var(--fin-touch); padding: 0 12px 0 36px;
+  border: 1px solid var(--fin-border); border-radius: var(--fin-radius);
+  background: var(--fin-raised); color: var(--text-normal);
+}
+
+.fin-chip-row-wrap { flex-wrap: wrap; overflow: visible; }
+
+.fin-chip-clear { color: var(--fin-money-out); border-color: var(--fin-money-out); }
+
+.fin-amount-range { display: flex; gap: 8px; }
+
+.fin-range-input {
+  flex: 1; min-height: var(--fin-touch); padding: 0 10px;
+  border: 1px solid var(--fin-border); border-radius: var(--fin-radius);
+  background: var(--fin-raised); color: var(--text-normal);
+}
+
+/* ---------- summary ---------- */
+.fin-summary { padding: 0 var(--fin-gap) var(--fin-gap); }
+.fin-summary-currency { font-size: 0.75em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.fin-summary-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  padding: var(--fin-gap); border-radius: var(--fin-radius); background: var(--fin-raised);
+}
+
+.fin-summary-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fin-summary-label { font-size: 0.75em; color: var(--text-muted); }
+.fin-summary-value { font-size: 1.05em; font-weight: 700; overflow-wrap: anywhere; }
+
+/* ---------- list ---------- */
+.fin-list { padding-bottom: 96px; }
+
+.fin-day-header {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  padding: 8px var(--fin-gap);
+  background: var(--fin-surface);
+  border-bottom: 1px solid var(--fin-border);
+  font-size: 0.8em; font-weight: 600; color: var(--text-muted);
+}
+
+.fin-row {
+  display: flex; align-items: center; gap: 12px;
+  min-height: var(--fin-row-height); padding: 8px var(--fin-gap);
+  cursor: pointer; transition: opacity 150ms ease;
+}
+.fin-row:hover { background: var(--fin-raised); }
+.fin-row.is-excluded { opacity: 0.55; }
+
+.fin-row-glyph {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 50%;
+  color: var(--fin-cat-color);
+  background: color-mix(in srgb, var(--fin-cat-color) 15%, transparent);
+}
+
+.fin-row-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.fin-row-primary { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fin-row-secondary { font-size: 0.8em; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.fin-badge {
+  display: inline-block; margin-top: 2px; padding: 1px 6px;
+  border-radius: 6px; font-size: 0.7em; font-weight: 600;
+}
+.fin-badge-excluded { background: var(--fin-raised); color: var(--text-muted); }
+
+.fin-row-amount { flex: 0 0 auto; text-align: right; display: flex; flex-direction: column; gap: 2px; }
+.fin-row-amount .fin-amount { font-weight: 700; }
+.fin-row-amount .is-struck { text-decoration: line-through; }
+.fin-row-currency { font-size: 0.7em; color: var(--text-muted); }
+
+.fin-more {
+  display: block; width: calc(100% - 2 * var(--fin-gap)); margin: var(--fin-gap);
+  min-height: var(--fin-touch); border: 1px solid var(--fin-border);
+  border-radius: var(--fin-radius); background: transparent;
+  color: var(--text-muted); cursor: pointer;
+}
+
+/* ---------- empty state ---------- */
+.fin-empty { padding: 48px var(--fin-gap); text-align: center; color: var(--text-muted); }
+.fin-empty-icon { display: grid; place-items: center; margin-bottom: 12px; opacity: 0.5; }
+.fin-empty h3 { margin: 0 0 4px; color: var(--text-normal); }
+.fin-empty p { margin: 0; font-size: 0.9em; }
+
+/* ---------- add button ---------- */
+.fin-fab {
+  position: absolute; right: 20px; bottom: 20px; z-index: 2;
+  display: grid; place-items: center;
+  width: 52px; height: 52px; border: none; border-radius: 50%;
+  background: var(--interactive-accent); color: var(--text-on-accent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); cursor: pointer;
+  transition: transform 150ms ease;
+}
+.fin-fab:hover { transform: scale(1.05); }
+
+.fin-tab-body { position: relative; }
+
+/* ---------- wide layout ---------- */
+@container (min-width: 640px) {
+  .fin-row { min-height: 52px; }
+  .fin-summary-row { padding: 16px; }
+}
+
+/* ---------- transaction sheet ---------- */
+.fin-sheet .setting-item { padding: 8px 0; border: none; }
+.fin-sheet .is-hidden { display: none; }
+.fin-sheet-note { font-size: 0.85em; color: var(--text-muted); margin: 4px 0 0; }
+
+/* The paths a workspace reset would overwrite: long, so they scroll rather than
+   pushing the buttons off a phone screen. */
+.fin-reset-list {
+  max-height: 30vh;
+  overflow-y: auto;
+  margin: 4px 0 8px;
+  padding-left: 20px;
+  font-family: var(--font-monospace);
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+.fin-sheet-sms pre { white-space: pre-wrap; word-break: break-word; font-size: 0.85em; }
+.fin-sheet-meta { display: flex; gap: 12px; font-size: 0.8em; color: var(--text-muted); margin-top: 8px; }
+.fin-sheet-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.fin-sheet-actions button { min-height: var(--fin-touch); padding: 0 16px; }
+
+/* On a phone, present it as a bottom sheet rather than a centred dialog. */
+@media (max-width: 640px) {
+  .fin-sheet {
+    position: fixed; inset: auto 0 0 0;
+    max-height: 88vh; width: 100%;
+    border-radius: 16px 16px 0 0;
+    animation: fin-sheet-up 150ms ease-out;
+  }
+  @keyframes fin-sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fin-sheet { animation: none; }
+}
+
+/* ---------- rules editor ---------- */
+.fin-condition { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+.fin-condition-part { flex: 1 1 120px; min-width: 0; min-height: var(--fin-touch); }
+.fin-condition-remove {
+  flex: 0 0 auto; width: var(--fin-touch); height: var(--fin-touch);
+  border: none; border-radius: var(--fin-radius);
+  background: transparent; color: var(--text-muted);
+  font-size: 1.2em; cursor: pointer;
+}
+.fin-condition-remove:hover { color: var(--fin-money-out); }
+
+.fin-rule-preview {
+  margin-top: 12px; padding: 10px 12px;
+  border-radius: var(--fin-radius); background: var(--fin-raised); font-size: 0.85em;
+}
+.fin-rule-preview p { margin: 0 0 4px; }
+.fin-rule-preview-list { margin: 4px 0 0; padding-left: 18px; color: var(--text-muted); }
+.fin-rule-error { padding: 12px; border-radius: var(--fin-radius); background: color-mix(in srgb, var(--fin-money-out) 12%, transparent); }
+.fin-rule-error-text { color: var(--fin-money-out); }
+
+/* ---------- mobile ---------- */
+/* Stop iOS zooming the page when a text field is focused. */
+.finance-budget input, .fin-sheet input, .fin-sheet select, .fin-sheet textarea {
+  font-size: 16px;
+}
+
+/* Keep the floating button clear of the iPhone home indicator. */
+.fin-fab { bottom: calc(20px + env(safe-area-inset-bottom)); }
+
+/* Obsidian mobile floats its navigation bar over the bottom of the view, so
+   the end of a tab (the New account button, the last row) scrolls clear of it,
+   and the floating button sits above it. */
+.is-mobile .finance-budget .fin-tab-body {
+  padding-bottom: calc(120px + env(safe-area-inset-bottom));
+}
+.is-mobile .finance-budget .fin-fab {
+  bottom: calc(76px + env(safe-area-inset-bottom));
+}
+
+/* Keep the sheet clear of it too. */
+@media (max-width: 640px) {
+  .fin-sheet { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* ---------- charts ---------- */
+.fin-donut { width: 100%; max-width: 220px; margin: 0 auto; display: block; }
+.fin-donut-slice { transition: opacity 150ms ease; }
+.fin-donut-slice.is-clickable { cursor: pointer; }
+.fin-donut-slice.is-clickable:hover { opacity: 0.75; }
+.fin-donut-total { fill: var(--text-normal); font-size: 18px; font-weight: 700; }
+.fin-donut-currency { fill: var(--text-muted); font-size: 11px; }
+
+.fin-bars { width: 100%; display: block; }
+.fin-axis { stroke: var(--fin-border); stroke-width: 1; }
+.fin-axis-label { fill: var(--text-muted); font-size: 10px; }
+.fin-bar { fill: var(--interactive-accent); opacity: 0.75; }
+.fin-bar.is-current { opacity: 1; }
+.fin-chart-caption { font-size: 0.75em; color: var(--text-muted); text-align: center; margin: 4px 0 0; }
+
+.fin-legend { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.fin-legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.85em; }
+.fin-legend-row.is-clickable { cursor: pointer; }
+.fin-legend-row.is-clickable:hover { opacity: 0.75; }
+.fin-legend-swatch { flex: 0 0 auto; width: 10px; height: 10px; border-radius: 3px; }
+.fin-legend-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fin-legend-value { flex: 0 0 auto; color: var(--text-muted); }
+
+.fin-hbars { display: flex; flex-direction: column; gap: 12px; }
+.fin-hbar-head { display: flex; justify-content: space-between; gap: 8px; font-size: 0.85em; margin-bottom: 4px; }
+.fin-hbar-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fin-hbar-value { flex: 0 0 auto; font-weight: 600; }
+.fin-hbar-track { height: 8px; border-radius: 4px; background: var(--fin-border); overflow: hidden; }
+.fin-hbar-track.is-over { box-shadow: inset 0 0 0 1px var(--fin-over); }
+.fin-hbar-fill { height: 100%; background: var(--interactive-accent); border-radius: 4px; transition: width 150ms ease; }
+.fin-hbar-caption { font-size: 0.75em; color: var(--text-muted); margin-top: 3px; }
+.fin-hbar-row.is-clickable { cursor: pointer; }
+
+.fin-panel-empty { color: var(--text-muted); font-size: 0.9em; text-align: center; padding: 16px 0; margin: 0; }
+
+/* ---------- accounts tab ---------- */
+.fin-networth { padding: var(--fin-gap); text-align: center; }
+.fin-networth-label { font-size: 0.75em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.fin-networth-row { display: flex; align-items: baseline; justify-content: center; gap: 6px; }
+.fin-networth-value { font-size: 1.9em; font-weight: 700; }
+.fin-networth-currency { color: var(--text-muted); font-size: 0.9em; }
+
+.fin-account-list { display: flex; flex-direction: column; gap: 10px; padding: 0 var(--fin-gap) var(--fin-gap); }
+
+.fin-account-card {
+  padding: 14px; border-radius: var(--fin-radius);
+  background: var(--fin-raised); cursor: pointer;
+  transition: transform 150ms ease;
+}
+.fin-account-card:hover { transform: translateY(-1px); }
+
+.fin-account-head { display: flex; align-items: center; gap: 12px; }
+.fin-account-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--background-primary); color: var(--text-muted);
+}
+.fin-account-names { flex: 1 1 auto; min-width: 0; }
+.fin-account-name { font-weight: 600; }
+.fin-account-type { font-size: 0.75em; color: var(--text-muted); text-transform: capitalize; }
+.fin-account-amount { flex: 0 0 auto; text-align: right; }
+.fin-account-balance { font-size: 1.1em; font-weight: 700; }
+.fin-account-currency { font-size: 0.7em; color: var(--text-muted); }
+
+.fin-account-edit {
+  flex: 0 0 auto; margin-left: 4px;
+  min-width: var(--fin-touch); min-height: var(--fin-touch);
+  color: var(--text-muted);
+}
+.fin-account-actions { padding: 0 var(--fin-gap) var(--fin-gap); }
+
+.fin-account-flow { display: flex; gap: 12px; margin-top: 10px; font-size: 0.8em; }
+.fin-account-count { color: var(--text-muted); margin-left: auto; }
+.fin-account-drift { margin-top: 6px; font-size: 0.75em; color: var(--fin-warn); }
+
+.fin-unknown {
+  margin: 0 var(--fin-gap) var(--fin-gap); padding: 12px;
+  border-radius: var(--fin-radius);
+  background: color-mix(in srgb, var(--fin-warn) 10%, transparent);
+  font-size: 0.85em;
+}
+.fin-unknown p { margin: 4px 0 0; }
+.fin-unknown-names { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+/* ---------- stats panels ---------- */
+.fin-panel-grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0 var(--fin-gap) 96px; }
+
+@container (min-width: 720px) {
+  .fin-panel-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.fin-panel { padding: 14px; border-radius: var(--fin-radius); background: var(--fin-raised); }
+.fin-panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.fin-panel-title { margin: 0; font-size: 0.95em; font-weight: 700; }
+.fin-panel-subtitle { font-size: 0.75em; color: var(--text-muted); white-space: nowrap; }
+.fin-panel-currency { font-size: 0.75em; color: var(--text-muted); margin-bottom: 6px; }
+
+.fin-panel-net {
+  display: flex; justify-content: space-between; gap: 8px;
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--fin-border);
+  font-size: 0.9em; font-weight: 600;
+}
+
+/* ---------- categories tab ---------- */
+.fin-category-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 10px var(--fin-gap) 4px;
+}
+.fin-category-bar-count { font-size: 0.85em; font-weight: 600; }
+.fin-category-sorts { display: flex; gap: 6px; margin-left: auto; }
+.fin-category-list { padding: 4px var(--fin-gap) 96px; }
+.fin-category-amounts { flex: 0 0 auto; display: flex; align-items: baseline; gap: 6px; }
+.fin-category-currency { font-size: 0.75em; color: var(--text-muted); }
+.fin-category-meta { font-size: 0.75em; color: var(--text-muted); margin-bottom: 6px; }
+.fin-category-editor { margin-top: 8px; }
+.fin-category-row.is-over { border-left: 2px solid var(--fin-over); padding-left: 8px; }
+.fin-category-row.is-over .fin-category-meta { color: var(--fin-over); }
+.fin-tab-body > .fin-rule-error { margin: 0 var(--fin-gap) 8px; }
+
+.fin-category-row { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--fin-border); }
+.fin-category-glyph {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 50%;
+  color: var(--fin-cat-color);
+  background: color-mix(in srgb, var(--fin-cat-color) 15%, transparent);
+}
+.fin-category-body { flex: 1 1 auto; min-width: 0; }
+.fin-category-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.fin-category-name { flex: 1 1 auto; font-weight: 600; min-width: 0; overflow-wrap: anywhere; cursor: pointer; }
+.fin-category-count { font-size: 0.8em; color: var(--text-muted); white-space: nowrap; }
+.fin-category-actions { display: flex; align-items: center; gap: 4px; margin-top: 8px; }
+.fin-category-actions button { min-width: var(--fin-touch); min-height: var(--fin-touch); }
+.fin-category-body .setting-item-control { flex: 1 1 55%; }
+.fin-keyword-input { width: 100%; resize: vertical; font-size: 0.9em; }
+
+.fin-swatches { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+.fin-swatch {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid transparent; padding: 0; cursor: pointer;
+}
+.fin-swatch.is-active { border-color: var(--text-normal); }
+
+/* ---------- merchants ---------- */
+.fin-merchant-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 10px var(--fin-gap) 4px;
+}
+.fin-merchant-count { font-size: 0.85em; font-weight: 600; }
+.fin-merchant-sorts { display: flex; gap: 6px; margin-left: auto; }
+.fin-merchant-unnamed {
+  flex: 1 0 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 4px var(--fin-gap) 0;
+  font-size: 0.75em; color: var(--text-muted);
+}
+.fin-merchant-bar .fin-merchant-unnamed { padding: 4px 0 0; }
+
+.fin-merchant-list { padding: 4px var(--fin-gap) 96px; }
+
+.fin-merchant-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "head head" "meta meta" "chips chips" "select open";
+  gap: 4px 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--fin-border);
+}
+/* A party still sitting in Uncategorized is the reason to be on this tab. */
+.fin-merchant-row.is-pending { border-left: 2px solid var(--interactive-accent); padding-left: 8px; }
+
+.fin-merchant-head { grid-area: head; display: flex; align-items: baseline; gap: 8px; }
+.fin-merchant-name {
+  flex: 1 1 auto; min-width: 0; font-weight: 600; cursor: pointer;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fin-merchant-amounts { flex: 0 0 auto; display: flex; align-items: baseline; gap: 6px; }
+.fin-merchant-currency { font-size: 0.75em; color: var(--text-muted); }
+
+.fin-merchant-meta { grid-area: meta; font-size: 0.75em; color: var(--text-muted); }
+
+.fin-merchant-chips { grid-area: chips; display: flex; flex-wrap: wrap; gap: 4px; }
+.fin-merchant-chip {
+  padding: 1px 8px; border-radius: 999px; font-size: 0.7em;
+  color: var(--fin-cat-color);
+  background: color-mix(in srgb, var(--fin-cat-color) 15%, transparent);
+}
+
+.fin-merchant-select { grid-area: select; min-height: 34px; max-width: 100%; }
+.fin-merchant-open {
+  grid-area: open; display: grid; place-items: center;
+  min-width: 34px; min-height: 34px; padding: 0;
+  border: none; background: transparent; color: var(--text-muted); cursor: pointer;
+}
+
+/* ---------- stats actions ---------- */
+.fin-stats-actions { padding: 0 var(--fin-gap) 96px; }
+
+/* ---------- markdown embed ---------- */
+.fin-embed {
+  height: auto; padding: 12px;
+  border: 1px solid var(--fin-border); border-radius: var(--fin-radius);
+  container-type: inline-size;
+}
+.fin-embed .fin-summary-row { margin-bottom: 12px; }
+.fin-embed-error { color: var(--fin-money-out); font-size: 0.85em; margin: 0; }
