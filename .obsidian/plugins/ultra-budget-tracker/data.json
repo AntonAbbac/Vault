@@ -1,0 +1,12 @@
+{
+  "filter": {
+    "categories": [],
+    "accounts": [],
+    "types": [],
+    "statuses": [],
+    "search": "",
+    "amountMin": null,
+    "amountMax": null,
+    "excluded": "hide"
+  }
+}
