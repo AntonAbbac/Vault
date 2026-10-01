@@ -20,6 +20,12 @@
       "icon": "lucide-pen-tool",
       "name": "Word-Smith: Turn everything on or off",
       "mode": "any"
+    },
+    {
+      "id": "quickadd:choice:bdfea699-b301-4bfb-bf1e-55b8775284c0",
+      "icon": "lucide-list",
+      "name": "QuickAdd: Quick actions",
+      "mode": "any"
     }
   ],
   "macros": [],

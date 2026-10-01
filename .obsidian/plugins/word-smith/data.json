@@ -36,7 +36,7 @@
   "barThemeCheckbox": "",
   "barThemeGlassStash": null,
   "barThemeMarkdown": true,
-  "pluginEnabled": false,
+  "pluginEnabled": true,
   "scopeMode": "include",
   "scopePaths": [
     "10 Periodic"
@@ -89,25 +89,15 @@
   "retroBarOnPhone": false,
   "enableRetroStatus": true,
   "retroBarHidden": false,
-  "statusBarRows": 1,
   "statusRows": [
     {
       "left": ":b4{obsidian}:b2;6|{vim}|{file}:b2>{#>}:b1>{ggg}>{gg}>{g}",
       "center": "",
       "right": "{mode}:b2 {syntax} {prose} {report}\\ {font}:b1 {markers}\\{words}:b2 words\\{clock}{time}:5"
-    },
-    {
-      "left": "",
-      "center": "",
-      "right": ""
-    },
-    {
-      "left": "",
-      "center": "",
-      "right": ""
     }
   ],
   "fileTokenFormat": "name",
+  "targetTokenFormat": "percent",
   "flagTokenFormat": "icon",
   "statusBarBorderStyle": "none",
   "statusBarBorderWidth": 1,
@@ -115,12 +105,11 @@
   "statusBarBorderBottom": false,
   "statusBarFontSize": 14,
   "statusBarFontFollowNote": true,
+  "statusBarUiFont": false,
   "statusBarHeight": 20,
   "statusBarPadTop": 4,
   "statusBarPadBottom": 4,
-  "powerlineEnabled": true,
   "powerlineModeColors": true,
-  "powerlineSepWidth": 78,
   "powerlineColor1": "#4f9dde",
   "powerlineColor2": "#3f4550",
   "powerlineColor3": "#2f333c",
@@ -128,10 +117,6 @@
   "powerlineColor5": "#e0913a",
   "powerlineColor6": "#8a7fd1",
   "powerlineColor7": "#b5566b",
-  "powerlineText1": "#ffffff",
-  "powerlineText2": "#16181d",
-  "powerlineText3": "#9aa0a6",
-  "powerlineText4": "#4f9dde",
   "powerlineColorLight1": "#2d6da4",
   "powerlineColorLight2": "#d9dce1",
   "powerlineColorLight3": "#eceef1",
@@ -139,10 +124,6 @@
   "powerlineColorLight5": "#d79956",
   "powerlineColorLight6": "#6a5cb8",
   "powerlineColorLight7": "#a2404f",
-  "powerlineTextLight1": "#16181d",
-  "powerlineTextLight2": "#f7f7f5",
-  "powerlineTextLight3": "#5c636b",
-  "powerlineTextLight4": "#2d6da4",
   "vimFollowCursorSmith": true,
   "vimColorNormal": "#4f9dde",
   "vimColorInsert": "#4caf7d",
@@ -154,13 +135,13 @@
   "vimColorVisualLight": "#6a5cb8",
   "vimColorReplaceLight": "#a03c36",
   "vimColorCommandLight": "#b96f1e",
-  "goalTarget": 200,
   "goalsPath": "Word-Smith/ws-goals.md",
   "exportListPath": "Word-Smith/ws-export.md",
   "structurePath": "Word-Smith/ws-structure.md",
   "outlineFlagRenamed": true,
   "uniColOrder": [],
   "organizerFolder": "20 Writing/Knights of God",
+  "organizerPinned": false,
   "uniTypes": [
     "md",
     "image",
@@ -176,12 +157,6 @@
   "settingsMirrorPath": "Word-Smith/ws-settings.md",
   "fileGoals": {},
   "fileStatus": {},
-  "goalLabelMode": "fraction",
-  "retroCustomColors": false,
-  "retroDarkBgColor": "#141010",
-  "retroDarkTextColor": "#f2f2f2",
-  "retroLightBgColor": "#e9e8e8",
-  "retroLightTextColor": "#f7fb09",
   "barRuleDarkTopColor": "#fbfaf9",
   "barRuleDarkBottomColor": "#fbfaf9",
   "barRuleLightTopColor": "#16181d",
@@ -195,6 +170,7 @@
   "lineDarkColor": "#faf8f5",
   "lineLightColor": "#030303",
   "miscEnabled": true,
+  "layoutZenOnly": false,
   "enableParagraphIndent": true,
   "paragraphIndentEm": 4,
   "paragraphIndentMode": "single",
@@ -204,7 +180,6 @@
   "limitLineLength": false,
   "maxLineChars": 64,
   "justifyText": true,
-  "showHiddenMarkers": false,
   "paragraphNumbers": false,
   "markSpaces": false,
   "markersEnabled": false,
@@ -226,7 +201,7 @@
   "syntaxSkipCode": true,
   "syntaxStyle": "text",
   "checksEnabled": false,
-  "checkStyle": "squiggle",
+  "checkStyle": "line",
   "checkFiller": false,
   "checkFillerSoft": false,
   "checkFillerColor": "#8a7fd1",
@@ -287,7 +262,6 @@
   "fileTreeFolderIcons": false,
   "fileTreeKindIcons": false,
   "organizerOn": true,
-  "organizerRootShut": false,
   "organizerDateFormat": "human",
   "folderColors": {
     "20 Writing/Knights of God/Anton's Pain": "red"
@@ -330,7 +304,6 @@
       "dark": "#5aa96c"
     }
   ],
-  "fileTreeGoals": false,
   "fileTreeTasks": false,
   "enableOutlineCounts": false,
   "vimSoftWrapMotion": true,
@@ -341,22 +314,11 @@
   "vimLabelCommand": "COMMAND",
   "barPresets": {
     "Plain": {
-      "statusBarRows": 1,
       "statusRows": [
         {
           "left": "{vim}:b2|{file}:b1::{#>}",
           "center": "",
           "right": "{mode}:b1 {syntax} {prose} {report} :: {font} {markers} :: {words} words"
-        },
-        {
-          "left": "",
-          "center": "",
-          "right": ""
-        },
-        {
-          "left": "",
-          "center": "",
-          "right": ""
         }
       ],
       "fileTokenFormat": "name",
@@ -399,7 +361,6 @@
       "vimColorVisualLight": "#6a5cb8",
       "vimColorReplaceLight": "#a03c36",
       "vimColorCommandLight": "#b96f1e",
-      "powerlineSepWidth": 78,
       "statusBarFontFollowNote": false,
       "barRuleDarkTopColor": "#fbfaf9",
       "barRuleDarkBottomColor": "#fbfaf9",
@@ -409,22 +370,11 @@
       "markersTokenFormat": "word"
     },
     "Code": {
-      "statusBarRows": 1,
       "statusRows": [
         {
           "left": ":b4{obsidian}:b2;6|{vim}|{file}:b2>{#>}:b1>{ggg}>{gg}>{g}",
           "center": "",
           "right": "{mode}:b2 {syntax} {prose} {report}\\ {font}:b1 {markers}\\{words}:b2 words\\{clock}{time}:5"
-        },
-        {
-          "left": "",
-          "center": "",
-          "right": ""
-        },
-        {
-          "left": "",
-          "center": "",
-          "right": ""
         }
       ],
       "fileTokenFormat": "name",
@@ -467,7 +417,6 @@
       "vimColorVisualLight": "#6a5cb8",
       "vimColorReplaceLight": "#a03c36",
       "vimColorCommandLight": "#b96f1e",
-      "powerlineSepWidth": 78,
       "statusBarFontFollowNote": true,
       "barRuleDarkTopColor": "#fbfaf9",
       "barRuleDarkBottomColor": "#fbfaf9",
@@ -477,22 +426,11 @@
       "markersTokenFormat": "glyph"
     },
     "Fade": {
-      "statusBarRows": 1,
       "statusRows": [
         {
           "left": ":1 | {gg}{gg}{gg}{gg}{gg}{gg}{gg} | {file}:2 > {ggg}>{ggg}>{ggg}>{ggg}>",
           "center": "",
           "right": "{gg}{gg}{gg}{gg}{gg}{gg}{gg} | {flag}:f ~ {tasks}:4 ~ {words}:5 words ~ {readtime}:6 | {gg}{gg}{gg}{gg}{gg}{gg}{gg}"
-        },
-        {
-          "left": "",
-          "center": "",
-          "right": ""
-        },
-        {
-          "left": "",
-          "center": "",
-          "right": ""
         }
       ],
       "fileTokenFormat": "name",
@@ -536,7 +474,6 @@
       "vimColorVisualLight": "#8e44ad",
       "vimColorReplaceLight": "#c0392b",
       "vimColorCommandLight": "#b9770e",
-      "powerlineSepWidth": 78,
       "statusBarFontFollowNote": false,
       "barRuleDarkTopColor": "#fbfaf9",
       "barRuleDarkBottomColor": "#fbfaf9",
@@ -560,7 +497,8 @@
   "historyDailyGoal": 0,
   "organizerOpen": [
     "00 System/Dashboards",
-    "00 System"
+    "00 System",
+    "00 System/Dashboard"
   ],
   "uniColsOff": [
     "grade",
@@ -605,6 +543,5 @@
     "footnotes": true,
     "highlights": false,
     "paperId": "letter"
-  },
-  "organizerMode": "table"
+  }
 }

@@ -1,7 +1,9 @@
 {
   "filter": {
     "categories": [],
-    "accounts": [],
+    "accounts": [
+      "Secodary"
+    ],
     "types": [],
     "statuses": [],
     "search": "",

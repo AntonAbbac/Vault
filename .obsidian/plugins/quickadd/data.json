@@ -190,10 +190,121 @@
         },
         {
           "id": "4f624dd5-6cfc-4126-9472-40cfdf39fc53",
-          "name": "Work",
+          "name": "Captures",
           "type": "Multi",
           "command": false,
           "choices": [
+            {
+              "id": "2534c3ef-4ec1-4f2e-9b81-53326480a222",
+              "name": "Profile Entry",
+              "type": "Capture",
+              "command": false,
+              "onePageInput": "never",
+              "appendLink": false,
+              "copyLinkToClipboard": false,
+              "captureTo": "50 People/{{FILE:50 People|label:Pick a person|}}",
+              "captureToActiveFile": false,
+              "captureToCanvasNodeId": "",
+              "activeFileWritePosition": "cursor",
+              "createFileIfItDoesntExist": {
+                "enabled": true,
+                "createWithTemplate": true,
+                "template": "00 System/Templates/Profile Note.md"
+              },
+              "format": {
+                "enabled": true,
+                "format": "- {{DATE:YYYY-MM-DD}}: {{VALUE:Observation}}\n"
+              },
+              "insertAfter": {
+                "enabled": true,
+                "after": "## 5. OBSERVATIONS & CHRONOLOGY",
+                "insertAtEnd": true,
+                "considerSubsections": false,
+                "createIfNotFound": true,
+                "createIfNotFoundLocation": "bottom",
+                "inline": false,
+                "replaceExisting": false,
+                "blankLineAfterMatchMode": "none",
+                "promptHeading": false
+              },
+              "insertBefore": {
+                "enabled": false,
+                "before": "## 5. OBSERVATIONS & CHRONOLOGY",
+                "createIfNotFound": true,
+                "createIfNotFoundLocation": "bottom"
+              },
+              "newLineCapture": {
+                "enabled": false,
+                "direction": "below"
+              },
+              "prepend": false,
+              "task": false,
+              "openFile": false,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "templater": {
+                "afterCapture": "none"
+              },
+              "icon": "lucide-pencil"
+            },
+            {
+              "id": "2854301c-d338-40d6-9b26-40ffcc2acc83",
+              "name": "Daily Entry",
+              "type": "Capture",
+              "command": true,
+              "appendLink": false,
+              "captureTo": "10 Periodic/{{DATE:YYYY-MM-DD}}",
+              "captureToActiveFile": false,
+              "captureToCanvasNodeId": "",
+              "activeFileWritePosition": "cursor",
+              "createFileIfItDoesntExist": {
+                "enabled": true,
+                "createWithTemplate": true,
+                "template": "00 System/Templates/Daily Note.md"
+              },
+              "format": {
+                "enabled": true,
+                "format": "\n{{VALUE:What's happening?}} ({{time}})\n"
+              },
+              "insertAfter": {
+                "enabled": true,
+                "after": "## Outcome",
+                "insertAtEnd": true,
+                "considerSubsections": false,
+                "createIfNotFound": true,
+                "createIfNotFoundLocation": "bottom",
+                "inline": false,
+                "replaceExisting": false,
+                "blankLineAfterMatchMode": "none",
+                "promptHeading": false
+              },
+              "newLineCapture": {
+                "enabled": false,
+                "direction": "below"
+              },
+              "prepend": false,
+              "task": false,
+              "openFile": false,
+              "fileOpening": {
+                "location": "tab",
+                "direction": "vertical",
+                "mode": "default",
+                "focus": true
+              },
+              "templater": {
+                "afterCapture": "wholeFile"
+              },
+              "insertBefore": {
+                "enabled": false,
+                "before": "",
+                "createIfNotFound": false,
+                "createIfNotFoundLocation": "top"
+              }
+            },
             {
               "id": "02985687-12ee-4784-9648-30b3cde7b71d",
               "name": "Work Capture",
@@ -229,11 +340,12 @@
               "icon": "wallet"
             }
           ],
-          "collapsed": true
+          "collapsed": false,
+          "icon": "pen-tool"
         },
         {
           "id": "ed549d74-e0e4-4247-a4d3-e5cf0bb36e5b",
-          "name": "Personal",
+          "name": "Templates",
           "type": "Multi",
           "command": false,
           "choices": [
@@ -305,140 +417,10 @@
                 "kind": "prompt"
               },
               "icon": "person-standing"
-            },
-            {
-              "id": "2854301c-d338-40d6-9b26-40ffcc2acc83",
-              "name": "Daily Entry",
-              "type": "Capture",
-              "command": true,
-              "appendLink": false,
-              "captureTo": "10 Periodic/{{DATE:YYYY-MM-DD}}",
-              "captureToActiveFile": false,
-              "captureToCanvasNodeId": "",
-              "activeFileWritePosition": "cursor",
-              "createFileIfItDoesntExist": {
-                "enabled": true,
-                "createWithTemplate": true,
-                "template": "00 System/Templates/Daily Note.md"
-              },
-              "format": {
-                "enabled": true,
-                "format": "\n{{VALUE:What's happening?}} ({{time}})\n"
-              },
-              "insertAfter": {
-                "enabled": true,
-                "after": "## Outcome",
-                "insertAtEnd": true,
-                "considerSubsections": false,
-                "createIfNotFound": true,
-                "createIfNotFoundLocation": "bottom",
-                "inline": false,
-                "replaceExisting": false,
-                "blankLineAfterMatchMode": "none",
-                "promptHeading": false
-              },
-              "newLineCapture": {
-                "enabled": false,
-                "direction": "below"
-              },
-              "prepend": false,
-              "task": false,
-              "openFile": false,
-              "fileOpening": {
-                "location": "tab",
-                "direction": "vertical",
-                "mode": "default",
-                "focus": true
-              },
-              "templater": {
-                "afterCapture": "wholeFile"
-              },
-              "insertBefore": {
-                "enabled": false,
-                "before": "",
-                "createIfNotFound": false,
-                "createIfNotFoundLocation": "top"
-              }
-            },
-            {
-              "id": "2534c3ef-4ec1-4f2e-9b81-53326480a222",
-              "name": "Profile Entry",
-              "type": "Capture",
-              "command": false,
-              "onePageInput": "never",
-              "appendLink": false,
-              "copyLinkToClipboard": false,
-              "captureTo": "50 People/{{FILE:50 People|label:Pick a person|}}",
-              "captureToActiveFile": false,
-              "captureToCanvasNodeId": "",
-              "activeFileWritePosition": "cursor",
-              "createFileIfItDoesntExist": {
-                "enabled": true,
-                "createWithTemplate": true,
-                "template": "00 System/Templates/Profile Note.md"
-              },
-              "format": {
-                "enabled": true,
-                "format": "- {{DATE:YYYY-MM-DD}}: {{VALUE:Observation}}\n"
-              },
-              "insertAfter": {
-                "enabled": true,
-                "after": "## 5. OBSERVATIONS & CHRONOLOGY",
-                "insertAtEnd": true,
-                "considerSubsections": false,
-                "createIfNotFound": true,
-                "createIfNotFoundLocation": "bottom",
-                "inline": false,
-                "replaceExisting": false,
-                "blankLineAfterMatchMode": "none",
-                "promptHeading": false
-              },
-              "insertBefore": {
-                "enabled": false,
-                "before": "## 5. OBSERVATIONS & CHRONOLOGY",
-                "createIfNotFound": true,
-                "createIfNotFoundLocation": "bottom"
-              },
-              "newLineCapture": {
-                "enabled": false,
-                "direction": "below"
-              },
-              "prepend": false,
-              "task": false,
-              "openFile": false,
-              "fileOpening": {
-                "location": "tab",
-                "direction": "vertical",
-                "mode": "default",
-                "focus": true
-              },
-              "templater": {
-                "afterCapture": "none"
-              },
-              "icon": "lucide-pencil"
             }
           ],
-          "collapsed": true
-        },
-        {
-          "id": "35c65213-2794-45b2-bcdb-009399100ff4",
-          "name": "Back",
-          "type": "Macro",
-          "command": false,
-          "runOnStartup": false,
-          "macro": {
-            "name": "Back",
-            "id": "42fd67cd-0b0a-4e28-a4aa-dca23060ca5f",
-            "commands": [
-              {
-                "name": "QuickAdd: Index",
-                "type": "Obsidian",
-                "id": "8cc347a6-eaa9-4fb4-88b6-3cc803feb0b5",
-                "commandId": "quickadd:choice:f9ba6b76-e6f3-4f7a-81ed-6133f5dd09da"
-              }
-            ]
-          },
-          "icon": "arrow-left"
+          "collapsed": true,
+          "icon": "layout-template"
         }
       ],
       "collapsed": true,
@@ -459,12 +441,12 @@
           "choices": [
             {
               "id": "cf70a370-6fb5-4f93-9158-ff775cc8a13d",
-              "name": "default",
+              "name": "Default",
               "type": "Macro",
               "command": false,
               "runOnStartup": false,
               "macro": {
-                "name": "default",
+                "name": "Default",
                 "id": "4a82bb99-0187-4890-81ac-d38030858a77",
                 "commands": [
                   {
@@ -472,24 +454,18 @@
                     "type": "Obsidian",
                     "id": "8b57378b-53dc-4b7d-8312-da8eb0f6b04e",
                     "commandId": "workspaces-plus:default-mobile"
-                  },
-                  {
-                    "name": "QuickAdd: Quick actions",
-                    "type": "Obsidian",
-                    "id": "b41a63c4-2156-423b-acdf-b8e11dd054f8",
-                    "commandId": "quickadd:choice:bdfea699-b301-4bfb-bf1e-55b8775284c0"
                   }
                 ]
               }
             },
             {
               "id": "f966d133-ffcb-4661-92ae-f3c712f2649a",
-              "name": "planner",
+              "name": "Planner",
               "type": "Macro",
               "command": false,
               "runOnStartup": false,
               "macro": {
-                "name": "planner",
+                "name": "Planner",
                 "id": "4c7e9ca1-f5e8-4aeb-bccb-675078240fe9",
                 "commands": [
                   {
@@ -508,7 +484,7 @@
               }
             }
           ],
-          "collapsed": false,
+          "collapsed": true,
           "icon": "smartphone"
         },
         {
@@ -519,12 +495,12 @@
           "choices": [
             {
               "id": "fb307fa7-29f4-4c89-b9b7-65e1ca6bb337",
-              "name": "default",
+              "name": "Default",
               "type": "Macro",
               "command": false,
               "runOnStartup": false,
               "macro": {
-                "name": "default",
+                "name": "Default",
                 "id": "8bd73348-473b-4ad1-a453-99f34367f084",
                 "commands": [
                   {
@@ -532,24 +508,18 @@
                     "type": "Obsidian",
                     "id": "6ec48f60-077f-4732-a1b1-ce1ec9cc428d",
                     "commandId": "workspaces-plus:default"
-                  },
-                  {
-                    "name": "QuickAdd: Quick actions",
-                    "type": "Obsidian",
-                    "id": "400f2ef6-0754-4057-8771-8147f902a216",
-                    "commandId": "quickadd:choice:bdfea699-b301-4bfb-bf1e-55b8775284c0"
                   }
                 ]
               }
             },
             {
               "id": "da93547f-106b-4d5f-b9fd-a22f651533a6",
-              "name": "planner",
+              "name": "Planner",
               "type": "Macro",
               "command": false,
               "runOnStartup": false,
               "macro": {
-                "name": "planner",
+                "name": "Planner",
                 "id": "87d493f3-7436-49f2-9fc3-eb2bb7331288",
                 "commands": [
                   {
@@ -563,12 +533,12 @@
             },
             {
               "id": "255f8779-2828-4ad3-8ea8-6e2080daba00",
-              "name": "tasks",
+              "name": "Tasks",
               "type": "Macro",
               "command": false,
               "runOnStartup": false,
               "macro": {
-                "name": "tasks",
+                "name": "Tasks",
                 "id": "18f6847c-6f74-4da2-9d59-0abeed931d96",
                 "commands": [
                   {
@@ -585,7 +555,7 @@
           "icon": "cpu"
         }
       ],
-      "collapsed": false,
+      "collapsed": true,
       "icon": "folder-minus"
     }
   ],
