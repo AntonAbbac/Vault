@@ -1,6 +1,6 @@
 :root {
 
-	--ws-stylesheet-version: 570;
+	--ws-stylesheet-version: 575;
 
 	--ws-bg:   #050505;
 	--ws-text: #ffb000;
@@ -149,6 +149,10 @@ body.cursor-smith-torch-active.ws-editor-focused .ws-status-bar.ws-status-bar::b
 }
 
 body.cursor-smith-torch-active.ws-masks-active.ws-editor-focused .ws-mask.ws-mask {
+	background-image: linear-gradient(var(--ws-torch-wash), var(--ws-torch-wash));
+}
+
+body.cursor-smith-torch-active.ws-editor-focused .ws-bar-plinth.ws-bar-plinth {
 	background-image: linear-gradient(var(--ws-torch-wash), var(--ws-torch-wash));
 }
 
@@ -381,7 +385,7 @@ body.ws-text-pad .markdown-reading-view .markdown-preview-sizer {
 
 body.ws-rtl .ws-ws-tab::before { content: '\2190'; left: auto; right: 1px; }
 
-body.ws-rtl .ws-invisible { margin-left: 0; margin-inline-start: 2px; }
+body.ws-rtl .ws-invisible { padding-left: 0; padding-inline-start: 2px; }
 
 body.ws-rtl.ws-justify .markdown-source-view.mod-cm6 .cm-content,
 body.ws-rtl.ws-justify .markdown-reading-view .markdown-preview-sizer {
@@ -409,7 +413,7 @@ body.ws-rtl.ws-justify .markdown-reading-view .markdown-preview-sizer {
 .ws-invisible {
 	color: var(--text-faint, currentColor);
 	opacity: 0.5;
-	margin-left: 2px;
+	padding-left: 2px;
 	pointer-events: none;
 	user-select: none;
 
@@ -1007,6 +1011,8 @@ body.ws-masks-active   .cm-editor .cm-panels.cm-panels-bottom .cm-vim-panel > * 
 }
 
 .ws-keycap-row { display: block; }
+
+.ws-report-ring .ws-goal.ws-goal-heat { color: hsl(var(--ws-goal-hue), 62%, 44%); }
 
 .ws-goal-liquid {
 	position: relative;
@@ -4805,6 +4811,16 @@ body.ws-retrobar-active:not(.ws-bar-hidden) .workspace-leaf.ws-bar-overlap .ws-u
 	border-left-color: var(--interactive-accent);
 }
 
+.ws-uni-panel.ws-org-host.ws-org-namealone::after { display: none; }
+.ws-org-table.is-namealone thead th.ws-org-name,
+.ws-org-table.is-namealone tbody td.ws-org-name {
+	border-right: 1px solid var(--background-modifier-border);
+}
+.ws-uni-panel.ws-org-host.ws-org-namealone > .ws-org-namegrip { --ws-org-gripback: 7px; }
+.ws-uni-panel.ws-org-host.ws-org-namealone.is-namedrag .ws-org-table.is-namealone .ws-org-name {
+	border-right-color: var(--interactive-accent);
+}
+
 .ws-org-proppop .ws-org-propauto {
 	display: flex;
 	align-items: center;
@@ -6271,6 +6287,7 @@ body.ws-masks-active .cm-editor .cm-panels.cm-panels-bottom input {
 	.ws-firework-twinkle { animation: none; }
 }
 
+body.ws-para-indent .markdown-source-view.mod-cm6 .cm-content .ws-para-pending::before,
 body.ws-para-indent:where(.ws-para-single) .markdown-source-view.mod-cm6 .cm-content .ws-para-line::before,
 body.ws-para-indent:where(:not(.ws-para-single)) .markdown-source-view.mod-cm6 .cm-content .ws-para-first::before,
 body.ws-para-indent:where(.ws-para-single) .markdown-reading-view .markdown-preview-view p::before,
@@ -6298,6 +6315,8 @@ body:where(.ws-line-spacing) .markdown-reading-view .markdown-preview-view { lin
 body:where(.ws-line-hl) .markdown-source-view.mod-cm6 .cm-content .cm-active.cm-line { background-color: var(--ws-line-hl-color); }
 
 body:where(.ws-dim-active) :is(.ws-dim-line, .ws-dim-text) { opacity: var(--ws-dim-opacity); transition: opacity 0.15s ease; }
+
+body.ws-ios:where(.ws-dim-active) :is(.ws-dim-line, .ws-dim-text) { transition: none; }
 
 .ws-pos-noun { --ws-mark: var(--ws-pos-noun-color); --ws-mark-bg: var(--ws-pos-noun-bg); }
 .ws-pos-verb { --ws-mark: var(--ws-pos-verb-color); --ws-mark-bg: var(--ws-pos-verb-bg); }

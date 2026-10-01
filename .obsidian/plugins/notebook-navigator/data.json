@@ -117,7 +117,7 @@
     "file": null,
     "createMissingPeriodicNote": true
   },
-  "dualPane": false,
+  "dualPane": true,
   "dualPaneOrientation": "vertical",
   "narrowSidebarLayout": "singlePane",
   "narrowSidebarTriggerMode": "fitPanes",
@@ -540,7 +540,8 @@
     "00 System/Dashboard": "simple-icons:visualparadigm",
     "00 System/Templates": "book-template",
     "00 System/Attatchments": "material-icons:perm_media",
-    "00 System/Bases": "database"
+    "00 System/Bases": "database",
+    "Budget": "bootstrap-icons:wallet"
   },
   "folderColors": {},
   "folderBackgroundColors": {},

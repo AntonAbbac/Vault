@@ -508,7 +508,7 @@
               }
             }
           ],
-          "collapsed": true,
+          "collapsed": false,
           "icon": "smartphone"
         },
         {
@@ -581,7 +581,7 @@
               }
             }
           ],
-          "collapsed": false,
+          "collapsed": true,
           "icon": "cpu"
         }
       ],
@@ -600,7 +600,7 @@
     "00 System/Templates"
   ],
   "announceUpdates": "all",
-  "version": "2.27.0",
+  "version": "2.29.0",
   "globalVariables": {},
   "onePageInputEnabled": true,
   "disableOnlineFeatures": true,

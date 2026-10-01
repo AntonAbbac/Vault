@@ -2040,7 +2040,7 @@ function wsCatch(where, err) {
   }
   WS_CATCH_SEEN.set(where, { n: 1, last: msg });
   try {
-    console.warn("Word-Smith: " + where + " threw and was contained: " + msg);
+    console.debug("Word-Smith: " + where + " threw and was contained: " + msg);
   } catch {
   }
   return true;
@@ -2269,9 +2269,15 @@ function wsGuard(fn, where) {
     try {
       const out = call.apply(this, args);
       if (out && typeof out.then === "function") {
-        return out.then(null, (err) => {
-          wsGuardReport(where, err);
-        });
+        const pending = out;
+        return (async () => {
+          try {
+            return await pending;
+          } catch (err) {
+            wsGuardReport(where, err);
+            return void 0;
+          }
+        })();
       }
       return out;
     } catch (err) {
@@ -2713,6 +2719,7 @@ function wsBlocksFromMarkdown(md, opts) {
   const notes = [];
   let i = 0;
   let firstPara = true;
+  const breaks = /* @__PURE__ */ new Set();
   if (lines.length && /^---\s*$/.test(lines[0])) {
     let j = 1;
     while (j < lines.length && !/^---\s*$/.test(lines[j]))
@@ -2806,6 +2813,11 @@ function wsBlocksFromMarkdown(md, opts) {
       continue;
     }
     if (/^(\*\s*){3,}$|^(-\s*){3,}$|^(_\s*){3,}$/.test(t)) {
+      if (o.dashPageBreak && /^(-\s*){3,}$/.test(t)) {
+        breaks.add(out.length);
+        firstPara = true;
+        continue;
+      }
       out.push(wsPara([{ text: wsJoinMark(o) }], "WsDivider", { align: "center", noIndent: true }));
       firstPara = true;
       continue;
@@ -2846,6 +2858,17 @@ function wsBlocksFromMarkdown(md, opts) {
     }
     out.push(wsPara(runs, "WsBody", { noIndent: firstPara === false ? false : true }));
     firstPara = false;
+  }
+  for (const at of Array.from(breaks).sort((a, b) => b - a)) {
+    if (at >= out.length)
+      continue;
+    const p = String(out[at]);
+    if (p.indexOf("<w:pageBreakBefore/>") !== -1)
+      continue;
+    if (/^<w:p><w:pPr><w:pStyle w:val="[^"]*"\/>/.test(p))
+      out[at] = p.replace(/^(<w:p><w:pPr><w:pStyle w:val="[^"]*"\/>)/, "$1<w:pageBreakBefore/>");
+    else
+      out.splice(at, 0, wsPara([], "WsBody", { pageBreakBefore: true, noIndent: true }));
   }
   return { blocks: out, notes };
 }
@@ -4181,7 +4204,7 @@ function wsTaskSay(done, all2) {
 function wsSortArrow(dir) {
   return dir === "desc" ? " ↓" : " ↑";
 }
-var WS_STYLESHEET_VERSION = 570;
+var WS_STYLESHEET_VERSION = 575;
 var WS_INSTALLER_REFUSE = 1009;
 var WS_INSTALLER_REFUSE_TEXT = "1.9";
 var WS_INSTALLER_WARN = 1013;
@@ -4197,7 +4220,7 @@ var WS_WRITE = Object.freeze({
   move: "follow the store to its new place",
   settings: "save your settings"
 });
-var WS_PLUGIN_VERSION = "1.6.3";
+var WS_PLUGIN_VERSION = "1.7.0";
 var HISTORY_DEBOUNCE_MS = 2e3;
 var HISTORY_IDLE_MS = 8e3;
 var HISTORY_MAX_UNSAVED_MS = 12e4;
@@ -4645,25 +4668,15 @@ var DEFAULT_SETTINGS = {
   retroBarOnPhone: false,
   enableRetroStatus: true,
   retroBarHidden: false,
-  statusBarRows: 1,
   statusRows: [
     {
       left: ":b2{obsidian}:6>{ggggg}{ggggg}{ggggg}|{file}:vim>{ggggg}>{ggggg}>{ggggg}>{ggggg}~",
       center: "<{ss}{mode}:7/{syntax}::{prose}:2|{font}\\{report}:vim<",
       right: "~{markers}{paragraph}~{words} words){clock}{time}"
-    },
-    {
-      left: "",
-      center: "",
-      right: ""
-    },
-    {
-      left: "",
-      center: "",
-      right: ""
     }
   ],
   fileTokenFormat: "path",
+  targetTokenFormat: "percent",
   flagTokenFormat: "icon",
   statusBarBorderStyle: "none",
   statusBarBorderWidth: 1,
@@ -4675,9 +4688,7 @@ var DEFAULT_SETTINGS = {
   statusBarHeight: 16,
   statusBarPadTop: 2,
   statusBarPadBottom: 2,
-  powerlineEnabled: true,
   powerlineModeColors: true,
-  powerlineSepWidth: 78,
   powerlineColor1: "#4f9dde",
   powerlineColor2: "#3f4550",
   powerlineColor3: "#2f333c",
@@ -4685,10 +4696,6 @@ var DEFAULT_SETTINGS = {
   powerlineColor5: "#307853",
   powerlineColor6: "#8a7fd1",
   powerlineColor7: "#cc141d",
-  powerlineText1: "#ffffff",
-  powerlineText2: "#16181d",
-  powerlineText3: "#9aa0a6",
-  powerlineText4: "#4f9dde",
   powerlineColorLight1: "#2d6da4",
   powerlineColorLight2: "#d9dce1",
   powerlineColorLight3: "#eceef1",
@@ -4696,10 +4703,6 @@ var DEFAULT_SETTINGS = {
   powerlineColorLight5: "#b96f1e",
   powerlineColorLight6: "#6a5cb8",
   powerlineColorLight7: "#a2404f",
-  powerlineTextLight1: "#16181d",
-  powerlineTextLight2: "#f7f7f5",
-  powerlineTextLight3: "#5c636b",
-  powerlineTextLight4: "#2d6da4",
   vimFollowCursorSmith: true,
   vimColorNormal: "#4f9dde",
   vimColorInsert: "#4caf7d",
@@ -4711,7 +4714,6 @@ var DEFAULT_SETTINGS = {
   vimColorVisualLight: "#6a5cb8",
   vimColorReplaceLight: "#a03c36",
   vimColorCommandLight: "#b96f1e",
-  goalTarget: 200,
   goalsPath: "Word-Smith/ws-goals.md",
   exportListPath: "Word-Smith/ws-export.md",
   structurePath: "Word-Smith/ws-structure.md",
@@ -4725,12 +4727,6 @@ var DEFAULT_SETTINGS = {
   settingsMirrorPath: "Word-Smith/ws-settings.md",
   fileGoals: {},
   fileStatus: {},
-  goalLabelMode: "fraction",
-  retroCustomColors: false,
-  retroDarkBgColor: "#141010",
-  retroDarkTextColor: "#f2f2f2",
-  retroLightBgColor: "#e9e8e8",
-  retroLightTextColor: "#f7fb09",
   barRuleDarkTopColor: "#fbfaf9",
   barRuleDarkBottomColor: "#fbfaf9",
   barRuleLightTopColor: "#16181d",
@@ -4754,7 +4750,6 @@ var DEFAULT_SETTINGS = {
   limitLineLength: false,
   maxLineChars: 64,
   justifyText: true,
-  showHiddenMarkers: true,
   paragraphNumbers: false,
   markSpaces: false,
   markersEnabled: false,
@@ -4933,7 +4928,8 @@ var BAR_KEYS = [
   "markersTokenFormat",
   "flagTokenFormat",
   "barTokenIcons",
-  "statusBarUiFont"
+  "statusBarUiFont",
+  "targetTokenFormat"
 ];
 var BAR_KEYS_INERT = /* @__PURE__ */ new Set([
   "powerlineEnabled",
@@ -4949,8 +4945,11 @@ var BAR_KEYS_INERT = /* @__PURE__ */ new Set([
   "powerlineTextLight1",
   "powerlineTextLight2",
   "powerlineTextLight3",
-  "powerlineTextLight4"
+  "powerlineTextLight4",
+  "statusBarRows",
+  "powerlineSepWidth"
 ]);
+var WS_RETIRED_KEYS = [...BAR_KEYS_INERT, "goalTarget", "goalLabelMode", "showHiddenMarkers"];
 var BAR_KEYS_LIVE = BAR_KEYS.filter((k) => !BAR_KEYS_INERT.has(k));
 var BAR_SHARE_VERSION = "1";
 function barEnc(s) {
@@ -5054,6 +5053,8 @@ function barParseFields(body) {
     const key = BAR_KEYS[Number(m[1])];
     if (!key)
       continue;
+    if (BAR_KEYS_INERT.has(key))
+      continue;
     const val = barShareDecodeValue(m[2], m[3]);
     if (val !== void 0)
       snap[key] = val;
@@ -5079,15 +5080,14 @@ function barCodeToPreset(code) {
 function barPresetWithDefaults(preset) {
   const out = {};
   const base = wsBag(DEFAULT_SETTINGS), given = preset || {};
-  for (const k of BAR_KEYS) {
+  for (const k of BAR_KEYS_LIVE) {
     out[k] = barCloneValue(Object.prototype.hasOwnProperty.call(given, k) ? given[k] : base[k]);
   }
   return out;
 }
 var DEFAULT_BAR_PRESETS = {
   "Plain": {
-    "statusBarRows": 1,
-    "statusRows": [{ "left": ":b1{ssss}{file}", "center": "{mode} {syntax} {prose} {report}", "right": "{words} words{ssss}" }, { "left": "", "center": "", "right": "" }, { "left": "", "center": "", "right": "" }],
+    "statusRows": [{ "left": ":b1{ssss}{file}", "center": "{mode} {syntax} {prose} {report}", "right": "{words} words{ssss}" }],
     "fileTokenFormat": "name",
     "flagTokenFormat": "both",
     "powerlineModeColors": false,
@@ -5129,7 +5129,6 @@ var DEFAULT_BAR_PRESETS = {
     "vimColorVisualLight": "#6a5cb8",
     "vimColorReplaceLight": "#a03c36",
     "vimColorCommandLight": "#b96f1e",
-    "powerlineSepWidth": 78,
     "statusBarFontFollowNote": true,
     "barRuleDarkTopColor": "#fbfaf9",
     "barRuleDarkBottomColor": "#fbfaf9",
@@ -5138,11 +5137,11 @@ var DEFAULT_BAR_PRESETS = {
     "fontTokenFormat": "word",
     "markersTokenFormat": "word",
     "barTokenIcons": { "history": "icon", "export": "icon", "organizer": "icon", "powermenu": "icon", "report": "both", "modes": "both", "syntax": "both", "prose": "both" },
-    "statusBarUiFont": false
+    "statusBarUiFont": false,
+    "targetTokenFormat": "percent"
   },
   "Code": {
-    "statusBarRows": 1,
-    "statusRows": [{ "left": ":b4{obsidian}:b2;f|{vim}|{ln:col}:6|{file}:b2>{#>}:b1>{ggg}>{gg}>{g}", "center": "", "right": "{powermenu}:b3\\ {markers}\\{words}:b2w::{chars}ch\\{tasks}:6\\{clock}{time}:5" }, { "left": "", "center": "", "right": "" }, { "left": "", "center": "", "right": "" }],
+    "statusRows": [{ "left": ":b4{obsidian}:b2;f|{vim}|{ln:col}:6|{file}:b2>{#>}:b1>{ggg}>{gg}>{g}", "center": "", "right": "{powermenu}:b3\\ {markers}\\{words}:b2w::{chars}ch\\{tasks}:6\\{clock}{time}:5" }],
     "fileTokenFormat": "name",
     "flagTokenFormat": "both",
     "powerlineModeColors": true,
@@ -5184,7 +5183,6 @@ var DEFAULT_BAR_PRESETS = {
     "vimColorVisualLight": "#6a5cb8",
     "vimColorReplaceLight": "#a03c36",
     "vimColorCommandLight": "#b96f1e",
-    "powerlineSepWidth": 78,
     "statusBarFontFollowNote": false,
     "barRuleDarkTopColor": "#fbfaf9",
     "barRuleDarkBottomColor": "#fbfaf9",
@@ -5193,11 +5191,11 @@ var DEFAULT_BAR_PRESETS = {
     "fontTokenFormat": "glyph",
     "markersTokenFormat": "glyph",
     "barTokenIcons": {},
-    "statusBarUiFont": false
+    "statusBarUiFont": false,
+    "targetTokenFormat": "percent"
   },
   "Fade": {
-    "statusBarRows": 1,
-    "statusRows": [{ "left": ":1 | {gg}{gg}{gg}{gg}{gg}{gg}{gg} | {file}:2 > {ggg}>{ggg}>{ggg}>{ggg}>", "center": "", "right": "{gg}{gg}{gg}{gg}{gg}{gg}{gg} | {flag}:f ~ {tasks}:4 ~ {words}:5 words ~ {readtime}:6 | {gg}{gg}{gg}{gg}{gg}{gg}{gg}" }, { "left": "", "center": "", "right": "" }, { "left": "", "center": "", "right": "" }],
+    "statusRows": [{ "left": ":1 | {gg}{gg}{gg}{gg}{gg}{gg}{gg} | {file}:2 > {ggg}>{ggg}>{ggg}>{ggg}>", "center": "", "right": "{gg}{gg}{gg}{gg}{gg}{gg}{gg} | {flag}:f ~ {tasks}:4 ~ {words}:5 words ~ {readtime}:6 | {gg}{gg}{gg}{gg}{gg}{gg}{gg}" }],
     "fileTokenFormat": "name",
     "flagTokenFormat": "both",
     "powerlineModeColors": true,
@@ -5239,7 +5237,6 @@ var DEFAULT_BAR_PRESETS = {
     "vimColorVisualLight": "#8e44ad",
     "vimColorReplaceLight": "#c0392b",
     "vimColorCommandLight": "#b9770e",
-    "powerlineSepWidth": 78,
     "statusBarFontFollowNote": false,
     "barRuleDarkTopColor": "#fbfaf9",
     "barRuleDarkBottomColor": "#fbfaf9",
@@ -5248,7 +5245,8 @@ var DEFAULT_BAR_PRESETS = {
     "fontTokenFormat": "glyph",
     "markersTokenFormat": "glyph",
     "barTokenIcons": {},
-    "statusBarUiFont": false
+    "statusBarUiFont": false,
+    "targetTokenFormat": "percent"
   }
 };
 var import_obsidian2 = require("obsidian");
@@ -6008,7 +6006,10 @@ var WordSmithSettingTab = class _WordSmithSettingTab extends import_obsidian2.Pl
             if (!from || from === to)
               return;
             plugin.menuJoinAfter(from, to);
-            void plugin.saveSettings().then(() => redisplay());
+            void (async () => {
+              await plugin.saveSettings();
+              redisplay();
+            })();
           }
         });
         const handle = card.createSpan({ cls: "ws-card-text" });
@@ -6215,7 +6216,7 @@ var WordSmithSettingTab = class _WordSmithSettingTab extends import_obsidian2.Pl
       ], void 0, false),
       this.section("Sections", [this.railRow("powerline", RAIL)], bar),
       this.section("Rows", [
-        rendered({ name: "What each row says", desc: "Left, center and right of every row, written in tokens.", render: (st) => this.renderStatusRows(st) }, ["statusRows"]),
+        rendered({ name: "What the row says", desc: "Left, center and right of the bar, written in tokens.", render: (st) => this.renderStatusRows(st) }, ["statusRows"]),
         { name: "How to write a row", desc: "Every token, and how to color a segment.", render: (st) => this.renderFormatReference(st), searchable: false }
       ], this.railed("powerline", "rows", bar)),
       this.section("Look", [
@@ -6250,6 +6251,7 @@ var WordSmithSettingTab = class _WordSmithSettingTab extends import_obsidian2.Pl
       this.section("Tokens", [
         { name: "{file}", desc: "The note’s name, with or without its folders.", control: { type: "dropdown", key: "fileTokenFormat", options: { path: "Full path", name: "File name only" } } },
         { name: "{flag}", desc: "The flag’s icon, its name, or both.", control: { type: "dropdown", key: "flagTokenFormat", options: { icon: "Icon", name: "Name", both: "Icon and name" } } },
+        { name: "{target}", desc: "The note’s progress toward its target.", control: { type: "dropdown", key: "targetTokenFormat", options: { percent: "Percentage (43%)", ratio: "Words and target (2,145/5,000)" } } },
         { name: "{font}", desc: "The menu’s icon, the word, or both.", control: { type: "dropdown", key: "fontTokenFormat", options: { glyph: "Icon", word: "Name", both: "Icon and name" } } },
         { name: "{markers}", desc: "The menu’s icon, the word, or both.", control: { type: "dropdown", key: "markersTokenFormat", options: { glyph: "Icon", word: "Name", both: "Icon and name" } } },
         tokenFormat("{mode}", "modes", "Modes", "The menu’s icon, the word, or both."),
@@ -6393,6 +6395,7 @@ var WordSmithSettingTab = class _WordSmithSettingTab extends import_obsidian2.Pl
     L(["{paragraph}"], "The paragraph the cursor is in.");
     SUB("Counts");
     L(["{tasks}"], "Tasks ticked over tasks in the note, [3/7], as the Organizer shows them. Nothing when there are none.");
+    L(["{target}"], "How far the note is toward its target, 43% or 2,145/5,000. Set a target in the Organizer. Nothing when there is none.");
     L(["{properties}"], "How many properties the note has. Click to open the Properties pane.");
     L(["{backlinks}"], "How many notes link here. Click to open the backlinks pane.");
     g = G("Buttons", "mouse-pointer-click");
@@ -6434,7 +6437,7 @@ var WordSmithSettingTab = class _WordSmithSettingTab extends import_obsidian2.Pl
     SUB("Both at once");
     L(["{words}:3;1"], "Background nr. 3, text nr. 1.");
     SUB("The whole bar");
-    L([":3 {file} …"], "A colon before the first token of row 1 paints the whole bar’s background: palette color nr. 3 here, or :b1, :vim, :f.");
+    L([":3 {file} …"], "A colon before the first token of the row paints the whole bar’s background: palette color nr. 3 here, or :b1, :vim, :f.");
     L([";2 {file} …"], "A semicolon there paints all of its text: palette color nr. 2 here, or ;t1, ;vim, ;f.");
     L([":3;2 {file} …"], "Both at once. A token with a color of its own keeps it.");
     N(g, "Seven palette colors, a dark set and a light set, under Colors. A token with no color lies flush with the bar.");
@@ -6832,7 +6835,7 @@ var WordSmithSettingTab = class _WordSmithSettingTab extends import_obsidian2.Pl
         { name: "Highlight opacity", desc: "How strong the tint is.", control: { type: "slider", key: "lineHighlightOpacity", min: 0.05, max: 1, step: 0.05 }, visible: all(tw, () => !!s.highlightCurrentLine) },
         { name: "Dim unfocused text", desc: "Everything but the paragraph or sentence you are in fades.", control: { type: "toggle", key: "dimUnfocusedEnabled" }, visible: tw },
         { name: "Focus area", desc: "What stays lit.", control: { type: "dropdown", key: "dimFocusMode", options: { paragraph: "Paragraph", sentence: "Sentence" } }, visible: all(tw, () => !!s.dimUnfocusedEnabled) },
-        { name: "Dim opacity", desc: "How far the rest fades.", control: { type: "slider", key: "dimOpacity", min: 0.05, max: 1, step: 0.05 }, visible: all(tw, () => !!s.dimUnfocusedEnabled) },
+        { name: "Dim opacity", desc: "How much of the rest still shows. Lower is fainter; at 1 nothing fades.", control: { type: "slider", key: "dimOpacity", min: 0.05, max: 1, step: 0.05 }, visible: all(tw, () => !!s.dimUnfocusedEnabled) },
         this.hotkeysRow(["toggle-typewriter"])
       ], this.railed("focus", "typewriter")),
       this.section("Hemingway", [
@@ -7264,8 +7267,8 @@ var WordSmithSettingTab = class _WordSmithSettingTab extends import_obsidian2.Pl
     });
     return this.page("Vault", "vault", "Where it applies, settings as text, a repair, the files kept.", [
       this.scopeSection(),
-      this.section("Your settings", [
-        this.subheadRow("Your settings"),
+      this.section("Backup and repair", [
+        this.subheadRow("Backup and repair"),
         { name: "As text", desc: "Copy every setting as JSON, paste a copy back, or undo the last paste or reset.", render: (st) => this.renderSettingsText(st) },
         this.buttonRow("Repair the display", "Draws every surface again from the settings as they are.", "Repair", () => {
           plugin.repairDisplay();
@@ -7370,6 +7373,9 @@ var AFTER = {
     tab.plugin.updateRetroStatusBar();
   },
   flagTokenFormat: (tab) => {
+    tab.plugin.updateRetroStatusBar();
+  },
+  targetTokenFormat: (tab) => {
     tab.plugin.updateRetroStatusBar();
   },
   fontTokenFormat: (tab) => {
@@ -7950,7 +7956,7 @@ var paintMethods = {
     }
   },
   clearAllBodyState() {
-    document.body.classList.remove("zenmode-active", "zenmode-hide-properties", "zenmode-hide-status-bar", "zenmode-hide-scroll-bar", "zenmode-hide-title-bar", "zenmode-hide-ribbon", "zenmode-hide-linked-mentions", "ws-text-pad", "ws-para-indent", "ws-justify", "ws-typewriter", "ws-margin-nums", "ws-masks-active", "ws-retrobar-active", "ws-pos-dim", "ws-ck-dim", "ws-hemingway-active", "ws-line-limit", "ws-editor-focused", "ws-font-active", "ws-rtl", "ws-vim-panel-open", "ws-bar-hidden", "ws-bar-anim", "ws-bar-peek", "ws-titlebar-match", "ws-drag-ok");
+    document.body.classList.remove("zenmode-active", "zenmode-hide-properties", "zenmode-hide-status-bar", "zenmode-hide-scroll-bar", "zenmode-hide-title-bar", "zenmode-hide-ribbon", "zenmode-hide-linked-mentions", "ws-text-pad", "ws-para-indent", "ws-justify", "ws-typewriter", "ws-ios", "ws-margin-nums", "ws-masks-active", "ws-retrobar-active", "ws-pos-dim", "ws-ck-dim", "ws-hemingway-active", "ws-line-limit", "ws-editor-focused", "ws-font-active", "ws-rtl", "ws-vim-panel-open", "ws-bar-hidden", "ws-bar-anim", "ws-bar-peek", "ws-titlebar-match", "ws-drag-ok");
     document.body.removeAttribute("data-zen-hide-inline-title");
     document.body.removeAttribute("data-zen-focused-file");
     const mainTb = document.querySelector(".titlebar.ws-main-titlebar");
@@ -8030,6 +8036,7 @@ var paintMethods = {
     body.classList.toggle("ws-justify", scoped && this.textOpt("justifyText", false));
     const twOn = scoped && !!this.opt("enableTypewriter");
     body.classList.toggle("ws-typewriter", twOn);
+    body.classList.toggle("ws-ios", this.isIosApp());
     if (twOn) {
       const pct = this.typewriterAnchorRatio() * 100;
       document.documentElement.style.setProperty("--ws-tw-pad-top", pct + "vh");
@@ -8290,6 +8297,7 @@ function wsEditorExtensions(plugin, cm) {
   const dimText = Decoration2.mark({ class: "ws-dim-text" });
   const spaceDeco = Decoration2.mark({ class: "ws-ws-space" });
   const tabDeco = Decoration2.mark({ class: "ws-ws-tab" });
+  const ownsFocus = (view) => plugin.isIosApp() ? !!view.root && view.root.activeElement === view.contentDOM : view.hasFocus;
   const dimPlugin = ViewPlugin2.fromClass(class {
     constructor(view) {
       this.decorations = this.build(view);
@@ -8305,7 +8313,7 @@ function wsEditorExtensions(plugin, cm) {
         return Decoration2.none;
       if (!plugin.isEditorInScope(view))
         return Decoration2.none;
-      if (!view.hasFocus)
+      if (!ownsFocus(view))
         return Decoration2.none;
       const doc = view.state.doc;
       const head = view.state.selection.main.head;
@@ -8354,6 +8362,41 @@ function wsEditorExtensions(plugin, cm) {
       return b.finish();
     }
   }, { decorations: (v) => v.decorations });
+  const typed = (u) => u.transactions.some((tr) => tr.isUserEvent("input.type") || tr.isUserEvent("delete"));
+  const heldLineOf = (u) => {
+    const l = u.state.doc.lineAt(u.state.selection.main.head);
+    return { from: l.from, to: l.to };
+  };
+  const holdOver = (fresh, kept, held, u) => {
+    const doc = u.state.doc;
+    const add = [];
+    for (const it = fresh.iter(); it.value; it.next())
+      if (it.from < held.from || it.from > held.to)
+        add.push(it.value.range(it.from, it.to));
+    return kept.update({
+      filter: (from, _to, value) => from >= held.from && from <= held.to && !(value === markedLine && doc.lineAt(from).from !== from),
+      add,
+      sort: true
+    });
+  };
+  const holdUpdate = (inst, u, build) => {
+    if (u.docChanged && typed(u)) {
+      inst.held = heldLineOf(u);
+      inst.decorations = holdOver(build(u.view), inst.decorations.map(u.changes), inst.held, u);
+    } else if (u.docChanged) {
+      inst.held = null;
+      inst.decorations = build(u.view);
+    } else if (inst.held && (u.selectionSet || u.focusChanged)) {
+      const head = u.state.selection.main.head;
+      if (!u.view.hasFocus || head < inst.held.from || head > inst.held.to) {
+        inst.held = null;
+        inst.decorations = build(u.view);
+      } else if (u.viewportChanged)
+        inst.decorations = holdOver(build(u.view), inst.decorations, inst.held, u);
+    } else if (u.viewportChanged) {
+      inst.decorations = inst.held ? holdOver(build(u.view), inst.decorations, inst.held, u) : build(u.view);
+    }
+  };
   const markerPlugin = ViewPlugin2.fromClass(class {
     constructor(view) {
       this.decorations = this.build(view);
@@ -8365,7 +8408,7 @@ function wsEditorExtensions(plugin, cm) {
     }
     build(view) {
       const s = plugin.settings;
-      if (!s.pluginEnabled || !plugin.markerOpt("showHiddenMarkers", false))
+      if (!s.pluginEnabled || !s.markersEnabled)
         return Decoration2.none;
       if (!plugin.isEditorInScope(view))
         return Decoration2.none;
@@ -8423,27 +8466,11 @@ function wsEditorExtensions(plugin, cm) {
   };
   const syntaxPlugin = ViewPlugin2.fromClass(class {
     constructor(view) {
-      this.bare = null;
+      this.held = null;
       this.decorations = this.build(view);
     }
     update(u) {
-      if (u.docChanged || u.viewportChanged)
-        this.decorations = this.build(u.view);
-      else if (u.selectionSet && this.caretCrossed(u.view))
-        this.decorations = this.build(u.view);
-    }
-    caretCrossed(view) {
-      const head = view.state.selection.main.head;
-      if (this.bare)
-        return head < this.bare.from || head > this.bare.to;
-      let hit = false;
-      this.decorations.between(head, head, (from, to, d) => {
-        if (d !== markedLine && from <= head && head <= to) {
-          hit = true;
-          return false;
-        }
-      });
-      return hit;
+      holdUpdate(this, u, (v) => this.build(v));
     }
     build(view) {
       const s = plugin.settings;
@@ -8464,14 +8491,7 @@ function wsEditorExtensions(plugin, cm) {
       const doc = view.state.doc;
       const skip = s.syntaxSkipCode ? plugin.getNonProseLines(doc) : null;
       const out = [];
-      const head = view.state.selection.main.head;
-      let bareFrom = Infinity, bareTo = -Infinity;
       const keep = (r) => {
-        if (r.from <= head && head <= r.to) {
-          bareFrom = Math.min(bareFrom, r.from);
-          bareTo = Math.max(bareTo, r.to);
-          return;
-        }
         out.push(r);
       };
       const seen = s.checkRepetition ? [] : null;
@@ -8565,37 +8585,79 @@ function wsEditorExtensions(plugin, cm) {
         const win = s.repetitionWindow != null ? s.repetitionWindow : 50;
         const min = s.repetitionMinLength != null ? s.repetitionMinLength : 5;
         for (const r of findRepetitions(seen, win, min)) {
-          if (r.from <= head && head <= r.to) {
-            bareFrom = Math.min(bareFrom, r.from);
-            bareTo = Math.max(bareTo, r.to);
-            continue;
-          }
           out.push(checkMark.repeat.range(r.from, r.to));
           marked.add(doc.lineAt(r.from).from);
         }
       }
       for (const at of marked)
         out.push(markedLine.range(at));
-      this.bare = bareFrom <= bareTo ? { from: bareFrom, to: bareTo } : null;
       return Decoration2.set(out, true);
     }
   }, { decorations: (v) => v.decorations });
   const paraFirstDeco = Decoration2.line({ class: "ws-para-first" });
   const paraBodyDeco = Decoration2.line({ class: "ws-para-line" });
+  const paraPendingDeco = Decoration2.line({ class: "ws-para-pending" });
+  const pendingLines = (view, info, single) => {
+    const doc = view.state.doc;
+    if (doc.length > 4e5)
+      return [];
+    const out = [];
+    let skip = null;
+    for (const r of view.state.selection.ranges) {
+      const line = doc.lineAt(r.head);
+      if (line.text.trim() !== "" || out.indexOf(line.number) !== -1)
+        continue;
+      if (!r.empty && doc.lineAt(r.anchor).number !== line.number)
+        continue;
+      const col = r.head - line.from;
+      if (!isParagraphLine(line.text.slice(0, col) + "x" + line.text.slice(col)))
+        continue;
+      if (!skip)
+        skip = plugin.getNonProseLines(doc);
+      if (skip.has(line.number))
+        continue;
+      if (!single) {
+        const n = line.number;
+        const above = n > 1 ? doc.line(n - 1) : null;
+        const prevBlank = !above || skip.has(n - 1) || !info.body.has(n - 1) && above.text.trim() === "";
+        let firstBody = Infinity;
+        for (const b of info.body) {
+          firstBody = Number(b);
+          break;
+        }
+        if (!prevBlank || firstBody >= n)
+          continue;
+      }
+      out.push(line.number);
+    }
+    return out.sort((a, b) => a - b);
+  };
   const paraPlugin = ViewPlugin2.fromClass(class {
     constructor(view) {
+      this.pending = "";
       this.decorations = this.build(view);
     }
     update(u) {
-      if (u.docChanged || u.viewportChanged)
+      if (u.docChanged || u.viewportChanged) {
+        this.decorations = this.build(u.view);
+        return;
+      }
+      if (u.selectionSet && this.pendingKey(u.view) !== this.pending)
         this.decorations = this.build(u.view);
     }
+    on(view) {
+      return !!plugin.settings.pluginEnabled && plugin.textOpt("enableParagraphIndent", false) && plugin.isEditorInScope(view);
+    }
+    pendingKey(view) {
+      if (!this.on(view))
+        return "";
+      return pendingLines(view, plugin.getParagraphLines(view.state.doc), plugin.settings.paragraphIndentMode === "single").join(",");
+    }
     build(view) {
+      this.pending = "";
+      if (!this.on(view))
+        return Decoration2.none;
       const s = plugin.settings;
-      if (!s.pluginEnabled || !plugin.textOpt("enableParagraphIndent", false))
-        return Decoration2.none;
-      if (!plugin.isEditorInScope(view))
-        return Decoration2.none;
       const doc = view.state.doc;
       const info = plugin.getParagraphLines(doc);
       const single = s.paragraphIndentMode === "single";
@@ -8611,20 +8673,24 @@ function wsEditorExtensions(plugin, cm) {
             out.push(deco.range(line.from));
         }
       }
+      const pending = pendingLines(view, info, single);
+      for (const n of pending)
+        out.push(paraPendingDeco.range(doc.line(n).from));
+      this.pending = pending.join(",");
       return Decoration2.set(out, true);
     }
   }, { decorations: (v) => v.decorations });
   const panelWatcher = cm.ViewPlugin.fromClass(class {
     constructor(view) {
-      this.sync(view);
+      this.sync(view, true);
     }
     update(u) {
-      this.sync(u.view);
+      this.sync(u.view, u.geometryChanged && !u.docChanged);
     }
     destroy() {
       document.body.classList.remove("ws-vim-panel-open");
     }
-    sync(view) {
+    sync(view, resized) {
       let open = false, panel = null;
       try {
         panel = view.dom.querySelector(".cm-panels-bottom");
@@ -8633,7 +8699,8 @@ function wsEditorExtensions(plugin, cm) {
         wsCatch("buildEditorExtensions / sync: panel = view.dom.querySelector('.cm-panels-bottom');", _);
       }
       document.body.classList.toggle("ws-vim-panel-open", open);
-      if (open !== plugin._vimPanelOpen) {
+      const turned = open !== plugin._vimPanelOpen;
+      if (turned) {
         plugin._vimPanelOpen = open;
         try {
           document.documentElement.style.setProperty("--ws-vim-gutter", plugin.vimGutterHeight() + "px");
@@ -8642,7 +8709,8 @@ function wsEditorExtensions(plugin, cm) {
         }
         plugin.updateRetroStatusBar();
       }
-      plugin.scheduleMaskPosition();
+      if (turned || resized)
+        plugin.scheduleMaskPosition();
       if (!open)
         return;
       window.requestAnimationFrame(() => {
@@ -8684,7 +8752,7 @@ function wsEditorExtensions(plugin, cm) {
     read() {
       const view = this.view;
       const s = plugin.settings;
-      if (!s.pluginEnabled || !plugin.markerOpt("showHiddenMarkers", false) || !s.markBlankLines)
+      if (!s.pluginEnabled || !s.markersEnabled || !s.markBlankLines)
         return null;
       if (!plugin.isEditorInScope(view))
         return null;
@@ -8816,7 +8884,19 @@ function wsEditorExtensions(plugin, cm) {
       return b.finish();
     }
   }, { decorations: (v) => v.decorations });
-  return [dimPlugin, markerPlugin, syntaxPlugin, paraPlugin, panelWatcher, eofTildePlugin, caretFloor, numberPlugin].concat(plugin.buildHemingwayExtensions()).concat(plugin.buildTypographyExtension()).concat(plugin.buildTypographyRevertKeymap());
+  const typewriterPlugin = ViewPlugin2.fromClass(class {
+    update(u) {
+      if (!u.docChanged && !u.selectionSet)
+        return;
+      if (!ownsFocus(u.view))
+        return;
+      if (!u.docChanged && u.transactions.some((tr) => tr.isUserEvent("select.pointer")))
+        return;
+      const edit = u.docChanged && u.transactions.some((tr) => tr.isUserEvent("input") || tr.isUserEvent("delete"));
+      plugin.typewriterRequest(u.view, edit ? "edit" : "move");
+    }
+  });
+  return [dimPlugin, markerPlugin, syntaxPlugin, paraPlugin, panelWatcher, eofTildePlugin, caretFloor, numberPlugin, typewriterPlugin].concat(plugin.buildHemingwayExtensions()).concat(plugin.buildTypographyExtension()).concat(plugin.buildTypographyRevertKeymap());
 }
 var editorMethods = {
   reconfigureEditors() {
@@ -9229,6 +9309,7 @@ var editorMethods = {
   }
 };
 var import_obsidian4 = require("obsidian");
+var WS_TYPEWRITER_IOS_PAUSE_MS = 400;
 var focusMethods = {
   chromeFloorY() {
     let limit = 0;
@@ -10126,43 +10207,57 @@ var focusMethods = {
     document.body.classList.toggle("ws-font-active", !!font);
   },
   typewriterScroll() {
+    const view = this.app.workspace.getActiveViewOfType(import_obsidian4.MarkdownView);
+    const cm = view && view.editor && view.editor.cm;
+    if (cm)
+      this.typewriterRequest(cm);
+  },
+  typewriterRequest(cm, cause = "move") {
     if (!this.settings.pluginEnabled || !this.settings.enableTypewriter)
       return;
-    if (!this.isActiveFileInScope())
+    if (!this.isEditorInScope(cm))
       return;
-    const view = this.app.workspace.getActiveViewOfType(import_obsidian4.MarkdownView);
-    if (!view)
+    if (cause === "edit" && this.isIosApp()) {
+      const win2 = cm.dom.ownerDocument.defaultView || window;
+      this._twIdleView = cm;
+      if (this._twIdle != null)
+        win2.clearTimeout(this._twIdle);
+      this._twIdle = win2.setTimeout(() => {
+        this._twIdle = null;
+        const v = this._twIdleView;
+        this._twIdleView = null;
+        if (!v || !v.dom.isConnected)
+          return;
+        this.typewriterRequest(v, v.composing ? "edit" : "move");
+      }, WS_TYPEWRITER_IOS_PAUSE_MS);
       return;
-    const scroller = view.contentEl.querySelector(".cm-scroller");
-    if (!scroller)
+    }
+    this._twView = cm;
+    if (this._twFrame != null)
       return;
-    let lineTop, lineHeight;
-    const activeLine = view.contentEl.querySelector(".cm-active-line");
-    if (activeLine) {
-      const sr = scroller.getBoundingClientRect();
-      const lr = activeLine.getBoundingClientRect();
-      lineTop = lr.top - sr.top + scroller.scrollTop;
-      lineHeight = lr.height;
-    } else {
-      const cm = view.editor && view.editor.cm;
-      if (!cm)
+    const win = cm.dom.ownerDocument.defaultView || window;
+    this._twFrame = win.requestAnimationFrame(() => {
+      this._twFrame = null;
+      const v = this._twView;
+      this._twView = null;
+      if (!v || !v.dom.isConnected)
+        return;
+      if (!this.settings.pluginEnabled || !this.settings.enableTypewriter)
         return;
       try {
-        const coords = cm.coordsAtPos(cm.state.selection.main.head);
+        const coords = v.coordsAtPos(v.state.selection.main.head);
         if (!coords)
           return;
-        const sr = scroller.getBoundingClientRect();
-        lineTop = coords.top - sr.top + scroller.scrollTop;
-        lineHeight = coords.bottom - coords.top;
-      } catch {
-        return;
+        const scroller = v.scrollDOM;
+        const lineTop = coords.top - scroller.getBoundingClientRect().top + scroller.scrollTop;
+        const target = lineTop + (coords.bottom - coords.top) / 2 - scroller.clientHeight * this.typewriterAnchorRatio();
+        if (Math.abs(scroller.scrollTop - target) < 1)
+          return;
+        scroller.scrollTop = target;
+      } catch (e) {
+        wsCatch("typewriterRequest: the frame", e);
       }
-    }
-    const ratioAbove = this.typewriterAnchorRatio();
-    const target = lineTop + lineHeight / 2 - scroller.clientHeight * ratioAbove;
-    if (Math.abs(scroller.scrollTop - target) < 1)
-      return;
-    scroller.scrollTop = target;
+    });
   },
   typewriterAnchorRatio() {
     const raw = this.settings.typewriterAnchor;
@@ -10293,6 +10388,19 @@ var focusMethods = {
     }
     try {
       return !!(document.body && document.body.classList.contains("is-mobile"));
+    } catch {
+      return false;
+    }
+  },
+  isIosApp() {
+    try {
+      if (import_obsidian4.Platform && typeof import_obsidian4.Platform.isIosApp === "boolean")
+        return import_obsidian4.Platform.isIosApp;
+    } catch (_) {
+      wsCatch("isIosApp: Platform.isIosApp", _);
+    }
+    try {
+      return !!(document.body && document.body.classList.contains("is-ios"));
     } catch {
       return false;
     }
@@ -11826,12 +11934,16 @@ var treeMethods = {
     }
     if (!this._structStore && !this._treeOrderLoading) {
       this._treeOrderLoading = true;
-      this.treeOrderLoad().then(() => {
-        this._treeOrderLoading = false;
-        this.repaintExplorerOrder();
-      }).catch(() => {
-        this._treeOrderLoading = false;
-      });
+      void (async () => {
+        try {
+          await this.treeOrderLoad();
+          this._treeOrderLoading = false;
+          this.repaintExplorerOrder();
+        } catch (_) {
+          this._treeOrderLoading = false;
+          wsCatch("patchExplorerSort: await this.treeOrderLoad();", _);
+        }
+      })();
     }
     for (const view of this.explorerViews()) {
       if (view._wsSortPatched)
@@ -12069,8 +12181,12 @@ var treeMethods = {
         return;
       }
       this._patchRunning = true;
-      void Promise.resolve().then(() => this.patchExplorerDOM()).catch(() => {
-      }).then(() => {
+      void (async () => {
+        try {
+          await this.patchExplorerDOM();
+        } catch (_) {
+          wsCatch("scheduleExplorerPatch: await this.patchExplorerDOM();", _);
+        }
         this._patchRunning = false;
         try {
           if (this.explorerObserver)
@@ -12082,7 +12198,7 @@ var treeMethods = {
           this._patchAgain = false;
           this.scheduleExplorerPatch();
         }
-      });
+      })();
     });
   },
   async patchExplorerDOM() {
@@ -12847,7 +12963,6 @@ var wsOrgChromeMake = (d) => {
     }
     said("");
     d.drawPanel();
-    d.draw();
     return true;
   };
   const drawSubject = () => {
@@ -13252,7 +13367,6 @@ var wsOrgColsMake = (d) => {
     d.s.uniColsOff = Array.from(colOff);
     await d.plugin.saveSettings();
     rebuildCols();
-    d.draw();
     void d.fill();
     d.drawPanel();
   };
@@ -13283,7 +13397,6 @@ var wsOrgColsMake = (d) => {
     d.s.uniUserCols = list;
     await d.plugin.saveSettings();
     rebuildCols();
-    d.draw();
     void d.fill();
     d.drawPanel();
   };
@@ -13899,7 +14012,6 @@ var wsOrgKeysMake = (d) => {
       d.sel.clear();
       d.orgSel.lastPicked = null;
       d.orgSel.cursorDrives = false;
-      d.draw();
       d.drawPanel();
       return true;
     }
@@ -14244,7 +14356,6 @@ async function wsOrgPropMoveTo(a, moved, target) {
   const rest = (Array.isArray(d.s.uniColOrder) ? d.s.uniColOrder : []).filter((id) => keep.indexOf(id) === -1 && ids.indexOf(id) === -1);
   d.s.uniColOrder = keep.concat(rest);
   await d.plugin.saveSettings();
-  d.draw();
   void d.fill();
   d.drawPanel();
   orgPropPopRender();
@@ -14604,7 +14715,10 @@ function wsOrgFieldEditor(a, card, path, key, isDraft) {
     const pillHost = d.orgTagWrap(wrap2, String(key).toLowerCase() === "tags" ? "tags" : "multitext");
     const mkChip = (val) => {
       const chip = d.orgTagPill(pillHost, String(val), { remove: () => {
-        void commitList(live.filter((z) => z !== val)).then(() => chip.remove());
+        void (async () => {
+          await commitList(live.filter((z) => z !== val));
+          chip.remove();
+        })();
       } });
       return chip;
     };
@@ -14848,7 +14962,6 @@ var wsOrgPropsMake = (d) => {
         d.colOff.add(r.col.id);
       d.s.uniColsOff = Array.from(d.colOff);
       await d.plugin.saveSettings();
-      d.draw();
       void d.fill();
       d.drawPanel();
       if (turningOn)
@@ -15606,7 +15719,6 @@ var wsOrgScopeMake = (d) => {
     d.s.organizerFolder = d.orgFolder;
     d.plugin.saveSettings().catch(() => {
     });
-    d.draw();
     d.drawPanel();
   };
   let orgNote = "";
@@ -15634,7 +15746,6 @@ var wsOrgScopeMake = (d) => {
     d.orgSel.cursor = d.keyOf(it);
     d.orgSel.cursorDrives = true;
     orgFollow(it, false, markOnly);
-    d.draw();
     d.drawPanel();
   };
   let orgDrawTimer = null;
@@ -15761,7 +15872,6 @@ var wsOrgShapeMake = (d) => {
   const setShape = async (v) => {
     d.s.uniShow = v === "files" || v === "folders" ? v : "all";
     await d.plugin.saveSettings(true);
-    d.draw();
     void d.fill();
     try {
       d.drawPanel();
@@ -15790,7 +15900,6 @@ var wsOrgShapeMake = (d) => {
     const setAnd = (list) => {
       d.plugin.settings.uniTypes = list;
       void d.plugin.saveSettings(true);
-      d.draw();
       void d.fill();
       try {
         d.drawPanel();
@@ -16012,21 +16121,24 @@ var wsOrgTicksMake = (d) => {
     d.redraw();
     return true;
   };
-  const setOnly = (paths) => {
+  const setOnly = async (paths) => {
     const want = (Array.isArray(paths) ? paths : [paths]).map((p) => p == null || p === "/" ? "" : String(p)).filter((p) => p !== "");
-    return Promise.resolve(load()).then(() => {
-      if (!ticks)
-        return false;
-      ticks.clear();
-      for (const f of files()) {
-        const p = f.path;
-        if (want.some((w) => p === w || p.indexOf(w + "/") === 0))
-          ticks.add(p);
-      }
-      remember();
-      d.redraw();
-      return true;
-    }, () => false);
+    try {
+      await load();
+    } catch {
+      return false;
+    }
+    if (!ticks)
+      return false;
+    ticks.clear();
+    for (const f of files()) {
+      const p = f.path;
+      if (want.some((w) => p === w || p.indexOf(w + "/") === 0))
+        ticks.add(p);
+    }
+    remember();
+    d.redraw();
+    return true;
   };
   const door = {
     wanted: () => d.wanted(),
@@ -16446,6 +16558,8 @@ var wsOrgWritesMake = (d) => {
         await orgPropWriteOne(p, key, next, false);
         n++;
       }
+      if (writes.length > 1)
+        d.orgHeldAdd(writes.slice(1).map((w) => w[0]), String(key));
     }
     if (n > 1)
       d.orgBulkSay(n, "Property set");
@@ -16970,7 +17084,6 @@ function wsOrgDrawHeads(plugin, a) {
         ctx.colOff.add(col.id);
         s.uniColsOff = Array.from(ctx.colOff);
         await plugin.saveSettings();
-        ctx.draw();
         void fill();
         ctx.drawPanel();
       }));
@@ -17685,12 +17798,15 @@ var organizerWindowMethods = {
   orgIndexResweep() {
     if (this._orgIndexBuild != null)
       return this._orgIndexBuild;
-    this._orgIndexBuild = this.orgIndexSweep().then((ix) => {
-      this._orgIndexRing();
-      return ix;
-    }).finally(() => {
-      this._orgIndexBuild = null;
-    });
+    this._orgIndexBuild = (async () => {
+      try {
+        const ix = await this.orgIndexSweep();
+        this._orgIndexRing();
+        return ix;
+      } finally {
+        this._orgIndexBuild = null;
+      }
+    })();
     return this._orgIndexBuild;
   },
   orgIndexVaultHasNotes() {
@@ -17803,8 +17919,14 @@ var organizerWindowMethods = {
           this._orgIndexRing();
         return;
       }
-      this.orgIndexRead(f).then(() => this._orgIndexRing()).catch(() => {
-      });
+      void (async () => {
+        try {
+          await this.orgIndexRead(f);
+          this._orgIndexRing();
+        } catch (_) {
+          wsCatch("orgIndexWatch changed: await this.orgIndexRead(f);", _);
+        }
+      })();
     });
     reg(this.app.vault, "delete", (f) => {
       if (md(f) && this._orgIndex && wsOrgRemove(this._orgIndex, f.path))
@@ -17821,8 +17943,14 @@ var organizerWindowMethods = {
       if (wsOrgRename(this._orgIndex, oldPath, f.path)) {
         this._orgIndexRing();
       } else {
-        this.orgIndexRead(f).then(() => this._orgIndexRing()).catch(() => {
-        });
+        void (async () => {
+          try {
+            await this.orgIndexRead(f);
+            this._orgIndexRing();
+          } catch (_) {
+            wsCatch("orgIndexWatch rename: await this.orgIndexRead(f);", _);
+          }
+        })();
       }
     });
   },
@@ -18176,7 +18304,6 @@ var organizerWindowMethods = {
         orgSelect(p);
       },
       redraw: () => {
-        draw();
         drawPanel();
       },
       said: (m) => said(m),
@@ -18186,9 +18313,6 @@ var organizerWindowMethods = {
     const loadTicks = orgTicks.load;
     const orgShape = wsOrgShapeMake({
       plugin: this,
-      get draw() {
-        return draw;
-      },
       get drawPanel() {
         return drawPanel;
       },
@@ -18238,9 +18362,6 @@ var organizerWindowMethods = {
     };
     const orgScope = wsOrgScopeMake({
       plugin: this,
-      get draw() {
-        return draw;
-      },
       get drawPanel() {
         return drawPanel;
       },
@@ -18282,7 +18403,6 @@ var organizerWindowMethods = {
         } catch (_) {
           wsCatch("orgIndexChanged: pruneUserCols();", _);
         }
-        draw();
         drawPanel();
       }, 150);
     });
@@ -18359,8 +18479,16 @@ var organizerWindowMethods = {
     const orgHistRun = orgJournal.run;
     const orgHistApi = orgJournal.api;
     const orgHistOn = orgJournal.on;
+    const orgHeld = /* @__PURE__ */ new Map();
     const orgWrites = wsOrgWritesMake({
       plugin: this,
+      orgHeldAdd: (paths, key) => {
+        for (const p of paths) {
+          const ks = orgHeld.get(p) || /* @__PURE__ */ new Set();
+          ks.add(key);
+          orgHeld.set(p, ks);
+        }
+      },
       get orgBulkPaths() {
         return orgBulkPaths;
       },
@@ -18625,7 +18753,6 @@ var organizerWindowMethods = {
         if (s.organizerPinned && !orgScope.orgScopeHolds(String(p)))
           return;
         orgFollow({ kind: "file", path: String(p) }, true);
-        draw();
         drawPanel();
         if (exportOpts && exportOpts.jumpTo && tab === "export") {
           try {
@@ -18664,9 +18791,6 @@ var organizerWindowMethods = {
       },
       get colOff() {
         return colOff;
-      },
-      get draw() {
-        return draw;
       },
       get drawPanel() {
         return drawPanel;
@@ -18719,9 +18843,6 @@ var organizerWindowMethods = {
     const orgFieldEditor = orgProps.orgFieldEditor;
     const orgCols = wsOrgColsMake({
       plugin: this,
-      get draw() {
-        return draw;
-      },
       get drawPanel() {
         return drawPanel;
       },
@@ -18760,8 +18881,6 @@ var organizerWindowMethods = {
     const folderOf = orgFiles.folderOf;
     const nameOf = orgFiles.nameOf;
     const liveFiles = orgFiles.liveFiles;
-    let draw = () => {
-    };
     let fill = async () => {
     };
     let drawPanel = () => {
@@ -18819,9 +18938,6 @@ var organizerWindowMethods = {
       get zoomTag() {
         return zoomTag;
       },
-      get draw() {
-        return draw;
-      },
       get drawPanel() {
         return drawPanel;
       }
@@ -18836,14 +18952,19 @@ var organizerWindowMethods = {
         drawOrg();
     });
     if (!this._structStore) {
-      this.structureRead().then(() => {
+      void (async () => {
+        try {
+          await this.structureRead();
+        } catch (_) {
+          wsCatch("openManuscriptModal: await this.structureRead();", _);
+          return;
+        }
         try {
           drawPanel();
         } catch (_) {
           wsCatch("openManuscriptModal: drawPanel();", _);
         }
-      }).catch(() => {
-      });
+      })();
     }
     const histState = Object.assign({ scope: "", query: "", shiftPeriod: null, hideScope: true }, this.historyOpeningPeriod());
     this._orgSubject = () => subject;
@@ -18852,11 +18973,9 @@ var organizerWindowMethods = {
     this._orgSubjectRows = () => subjectRows();
     const tableCtx = wsCtxLend({
       orgBarSaid: null,
+      orgHeld,
       get colTextish() {
         return colTextish;
-      },
-      get draw() {
-        return draw;
       },
       get drawPanel() {
         return drawPanel;
@@ -18924,7 +19043,13 @@ var organizerWindowMethods = {
       const rows = subjectRows();
       drawSubject();
       if (tab === "export" && exportOpts && panel.querySelector(".ws-export-split")) {
-        Promise.resolve(loadTicks()).then(() => {
+        void (async () => {
+          try {
+            await loadTicks();
+          } catch (_) {
+            wsCatch("openManuscriptModal: await loadTicks();", _);
+            return;
+          }
           if (gen !== panelGen)
             return;
           try {
@@ -18933,13 +19058,7 @@ var organizerWindowMethods = {
           } catch (_) {
             wsCatch("openManuscriptModal: if (exportOpts && exportOpts.refresh) exportOpts.refresh();", _);
           }
-          try {
-            draw();
-          } catch (_) {
-            wsCatch("openManuscriptModal: draw();", _);
-          }
-        }, () => {
-        });
+        })();
         return;
       }
       exportOpts = null;
@@ -18957,7 +19076,6 @@ var organizerWindowMethods = {
       tab: () => tab,
       ticks: () => orgTicks.current(),
       tickAll: (on) => orgTicks.setAll(on),
-      draw: () => draw(),
       drawPanel: () => drawPanel(),
       exportFiles,
       exportScope,
@@ -18974,9 +19092,6 @@ var organizerWindowMethods = {
     };
     const orgKeys = wsOrgKeysMake({
       plugin: this,
-      get draw() {
-        return draw;
-      },
       get drawPanel() {
         return drawPanel;
       },
@@ -19117,7 +19232,6 @@ var organizerWindowMethods = {
       wsCatch("openManuscriptModal: const ew = ownerWin();", _);
     }
     const stopWatching = this.onTreeOrderChange(() => {
-      draw();
       void fill();
       if (tab === "organizer")
         drawPanel();
@@ -19212,7 +19326,6 @@ var organizerWindowMethods = {
       }
     }
     drawTabs();
-    draw();
     void fill();
     drawPanel();
     if (orgScope.orgNote) {
@@ -19253,12 +19366,12 @@ var organizerWindowMethods = {
       ic.style.color = cdef.css;
     return ic;
   },
-  orgTargetSay(words, target) {
+  orgTargetSay(words, target, show) {
     const t = Number(target) || 0;
     if (t <= 0)
       return "";
     const w = Number(words) || 0;
-    const how = this.settings && this.settings.orgTargetShow || "percent";
+    const how = show || this.settings && this.settings.orgTargetShow || "percent";
     if (how === "percent") {
       const raw = w / t * 100;
       const pct = raw < 100 ? Math.min(99, Math.round(raw)) : Math.round(raw);
@@ -19306,7 +19419,6 @@ var organizerWindowMethods = {
   },
   async orgDrawExport(ctx) {
     const { panel, exportFiles, exportScope, loadTicks } = ctx;
-    const draw = () => ctx.draw();
     const drawPanel = () => ctx.drawPanel();
     const exportGoing = () => {
       const ticks = ctx.ticks();
@@ -19324,7 +19436,6 @@ var organizerWindowMethods = {
       total: () => exportFiles().length,
       tickAll: (on) => ctx.tickAll(on),
       onDone: () => {
-        draw();
         drawPanel();
       }
     });
@@ -19350,7 +19461,6 @@ var organizerWindowMethods = {
     } catch (_) {
       wsCatch("orgDrawExport: if (actHandle && actHandle.repaint) actHandle.repaint();", _);
     }
-    draw();
   },
   orgDrawHistory(ctx, rows) {
     const { panel, histState } = ctx;
@@ -19359,13 +19469,14 @@ var organizerWindowMethods = {
     try {
       if (this.settings.historyTracking && !this._historyReady) {
         panel.createDiv({ cls: "ws-report-loading", text: "Reading…" });
-        void this.historyLoad().then(() => {
+        void (async () => {
+          await this.historyLoad();
           const at = this.historyOpeningPeriod();
           histState.year = at.year;
           histState.month = at.month;
           if (ctx.tab() === "history")
             drawPanel();
-        });
+        })();
         return;
       }
       this.renderHistoryTab(panel, histState, () => drawPanel());
@@ -19377,13 +19488,32 @@ var organizerWindowMethods = {
   orgTableMake(ctx) {
     const s = ctx.s;
     const fill = () => ctx.fill();
+    const orgRepaintHeld = () => {
+      for (const [path, keys] of ctx.orgHeld) {
+        if (!keys.has("tags"))
+          continue;
+        const tr = Array.from(ctx.panel.querySelectorAll("tr.ws-org-row")).find((r) => r.getAttribute("data-path") === path);
+        const old = tr ? tr.querySelector('td[data-col="tags"]') : null;
+        if (!tr || !old || old.querySelector(".ws-org-editor"))
+          continue;
+        const td = tr.createEl("td", { cls: old.className, attr: { "data-col": "tags" } });
+        const style = old.getAttribute("style");
+        if (style)
+          td.setAttribute("style", style);
+        const cut = path.lastIndexOf("/");
+        ctx.orgTagsCell(td, { path, parent: cut === -1 ? "" : path.slice(0, cut), kind: "file", group: "", depth: 0, rel: "", idx: 0 });
+        old.replaceWith(td);
+      }
+    };
     const drawOrg = () => {
       ctx.orgFilePathCache = null;
       ctx.orgColCeilReset();
       if (ctx.orgEditGuard) {
         ctx.orgRedrawPending = true;
+        orgRepaintHeld();
         return;
       }
+      ctx.orgHeld.clear();
       const orgKeepScroll = ctx.orgScrollTop;
       const orgKeepScrollX = ctx.orgScrollLeft || 0;
       void this.orgIndexEnsure();
@@ -19460,11 +19590,16 @@ var organizerWindowMethods = {
       ctx.orgDrawnSig = sig;
       ctx.drawSubject();
       if (this.settings.historyTracking && !this._historyReady) {
-        this.historyLoad().then(() => {
+        void (async () => {
+          try {
+            await this.historyLoad();
+          } catch (_) {
+            wsCatch("orgDrawHistoryFigures: await this.historyLoad();", _);
+            return;
+          }
           if (ctx.tab === "organizer")
             ctx.drawPanel();
-        }).catch(() => {
-        });
+        })();
       }
       const orgCounted = (p0) => {
         try {
@@ -19692,6 +19827,9 @@ var organizerWindowMethods = {
       }, { passive: true });
       const table = wrap.createEl("table", { cls: "ws-org-table" });
       ctx.orgNameStamp(table);
+      const nameAlone = cols.length === 0;
+      table.toggleClass("is-namealone", nameAlone);
+      ctx.panel.toggleClass("ws-org-namealone", nameAlone);
       if (nums) {
         table.addClass("has-num");
         table.style.setProperty("--ws-org-numw", "calc(" + Math.max(1, numW) + "ch + 8px)");
@@ -22499,8 +22637,8 @@ var reportMethods = {
         const ringWrap = body.createDiv({ cls: "ws-report-ring" });
         if (target > 0) {
           const ratio = Math.min(stats.words / target, 1);
-          const holder = ringWrap.createSpan({ cls: "ws-goal" + (stats.words >= target ? " is-met" : "") });
-          holder.style.color = "hsl(" + Math.round(8 + ratio * 122) + ", 62%, 44%)";
+          const holder = ringWrap.createSpan({ cls: "ws-goal ws-goal-heat" + (stats.words >= target ? " is-met" : "") });
+          holder.style.setProperty("--ws-goal-hue", String(Math.round(8 + ratio * 122)));
           holder.appendChild(this.buildGoalLiquid(ratio));
         } else {
           const none = ringWrap.createDiv({ cls: "ws-report-ring-label is-muted" });
@@ -22891,16 +23029,16 @@ var barMethods = {
   },
   applyBarSnapshot(preset) {
     const full = barPresetWithDefaults(preset);
-    for (const k of BAR_KEYS)
+    for (const k of BAR_KEYS_LIVE)
       wsBag(this.settings)[k] = full[k];
     if (this.settings.statusBarBorderStyle === "groove" || this.settings.statusBarBorderStyle === "ridge") {
       this.settings.statusBarBorderStyle = "solid";
     }
     if (!Array.isArray(this.settings.statusRows))
       this.settings.statusRows = [];
-    while (this.settings.statusRows.length < 3) {
+    this.settings.statusRows = this.settings.statusRows.slice(0, 1);
+    if (!this.settings.statusRows.length)
       this.settings.statusRows.push({ left: "", center: "", right: "" });
-    }
     for (const row of this.settings.statusRows) {
       for (const slot of ["left", "center", "right"]) {
         if (typeof row[slot] !== "string")
@@ -23704,13 +23842,15 @@ var barMethods = {
         leaf = ws.getRightLeaf(false);
       if (!leaf)
         return false;
-      void Promise.resolve(leaf.setViewState({ type: "file-properties", active: true })).then(() => {
+      const pane = leaf;
+      void (async () => {
+        await pane.setViewState({ type: "file-properties", active: true });
         try {
-          void ws.revealLeaf(leaf);
+          void ws.revealLeaf(pane);
         } catch (_) {
           wsCatch("openPropertiesView: ws.revealLeaf(leaf)", _);
         }
-      });
+      })();
       return true;
     } catch (_) {
       wsCatch("openPropertiesView: ws.getRightLeaf(false)", _);
@@ -24047,7 +24187,7 @@ var barMethods = {
   },
   buildMarkersIndicator() {
     const s = this.settings;
-    const any = this.markerOpt("showHiddenMarkers", false) && (s.markSpaces || s.markTabs || s.markParagraphs || s.markEndOfLines || s.markBlankLines);
+    const any = !!s.markersEnabled && (s.markSpaces || s.markTabs || s.markParagraphs || s.markEndOfLines || s.markBlankLines);
     return this.buildBarButton("ws-barbtn-markers" + (any ? "" : " is-off"), (node) => this.barTokenPaint(node, "markers", "Markers"), any ? "Hidden markers — click to change" : "Hidden markers are off", (anchor) => this.openMarkersPicker(anchor));
   },
   markersPickerItems() {
@@ -24062,14 +24202,12 @@ var barMethods = {
     const items = defs.map((d) => ({
       label: d.label,
       sub: true,
-      on: () => !!(this.markerOpt("showHiddenMarkers", false) && s[d.key]),
+      on: () => !!(s.markersEnabled && s[d.key]),
       onClick: async () => {
         s[d.key] = !s[d.key];
         if (s[d.key]) {
-          s.showHiddenMarkers = true;
           s.markersEnabled = true;
-        } else if (!defs.some((x) => s[x.key]))
-          s.showHiddenMarkers = false;
+        }
         await this.saveSettings(true);
       }
     }));
@@ -24342,6 +24480,13 @@ var barMethods = {
       return "";
     }
   },
+  barTargetText(view, words) {
+    const path = view && view.file ? view.file.path : "";
+    if (!path)
+      return "";
+    const s = this.settings || {};
+    return this.orgTargetSay(words, this.fileGoalFor(path), s.targetTokenFormat === "ratio" ? "ratio" : "percent");
+  },
   updateRetroStatusBar() {
     if (!this.retroStatusBarEl)
       return;
@@ -24408,6 +24553,7 @@ var barMethods = {
       "{flag}": "\0FLAG\0",
       "{readtime}": this.formatReadTime(totalWC),
       "{tasks}": stats && stats.tasks ? wsTaskSay(stats.tasks.done, stats.tasks.all) : "",
+      "{target}": this.barTargetText(view, totalWC),
       "{properties}": "\0PROPS\0"
     };
     const rows = this.getStatusRows();
@@ -25109,9 +25255,13 @@ var barMethods = {
       this.fitStatusBarText();
     };
     const el = this.retroStatusBarEl;
-    if (el && el.clientWidth && typeof Promise !== "undefined") {
-      Promise.resolve().then(run).catch(() => {
-        this._fitPending = false;
+    if (el && el.clientWidth && typeof queueMicrotask === "function") {
+      queueMicrotask(() => {
+        try {
+          run();
+        } catch {
+          this._fitPending = false;
+        }
       });
       return;
     }
@@ -26457,14 +26607,17 @@ var storesMethods = {
     this._goalsTimer = window.setTimeout(() => {
       this._goalsTimer = null;
       const wrote = this.goalsSignature();
-      this.goalsStoreWrite().then(() => {
-        if (wrote)
-          this._goalsSig = wrote;
-        this._goalsWritten = true;
-        this.storeWriteOk(WS_WRITE.goals);
-      }).catch((e) => {
-        this.storeWriteFailed(WS_WRITE.goals, e, "They are still set here; the file will be tried again.");
-      });
+      void (async () => {
+        try {
+          await this.goalsStoreWrite();
+          if (wrote)
+            this._goalsSig = wrote;
+          this._goalsWritten = true;
+          this.storeWriteOk(WS_WRITE.goals);
+        } catch (e) {
+          this.storeWriteFailed(WS_WRITE.goals, e, "They are still set here; the file will be tried again.");
+        }
+      })();
     }, 600);
   },
   storeWriteFailed(subject, e, tail) {
@@ -27238,9 +27391,14 @@ var storesMethods = {
     if (this._structStore)
       return this._structStore;
     if (this._structReading == null) {
-      this._structReading = this.vaultReady().then(() => this.structureReadNow()).finally(() => {
-        this._structReading = null;
-      });
+      this._structReading = (async () => {
+        try {
+          await this.vaultReady();
+          return await this.structureReadNow();
+        } finally {
+          this._structReading = null;
+        }
+      })();
     }
     return this._structReading;
   },
@@ -27287,7 +27445,14 @@ var storesMethods = {
     return this.structureQueue(() => this.structureWriteNow());
   },
   structureQueue(fn) {
-    const q = (this._structWriteQ ?? Promise.resolve()).then(fn, fn);
+    const prev = this._structWriteQ;
+    const q = (async () => {
+      try {
+        await prev;
+      } catch {
+      }
+      return fn();
+    })();
     this._structWriteQ = q;
     return q;
   },
@@ -27655,11 +27820,12 @@ var storesMethods = {
     if (!mine)
       return;
     const was = this._structText;
-    void this.structureReload().then(() => {
+    void (async () => {
+      await this.structureReload();
       if (this._structText === was)
         return;
       this.treeOrderChanged();
-    });
+    })();
   },
   async structureReload() {
     let text = "";
@@ -29361,6 +29527,7 @@ var exportMethods = {
     dflt("divider", "#");
     dflt("a4", false);
     dflt("starBetween", true);
+    dflt("dashPageBreak", false);
     dflt("folderHeadings", WS_EXPORT_FOLDER_HEADINGS_DEFAULT);
     o.wordCountOnTitle = true;
     o.pageNumbers = true;
@@ -30106,6 +30273,7 @@ var exportMethods = {
       heldPage = false;
       const note = forScreen && sec.path ? ' data-ws-note="' + esc(sec.path) + '"' : "";
       parts.push('<section class="' + (brk ? "page" : "run") + '" id="' + wsAnchorId(sec.title, i) + '"' + note + ">");
+      const pageOpen = '<section class="page"' + note + ">";
       if (pendingFolder) {
         const tight = !!(o.sectionTitles && sec.title);
         parts.push(tight ? pendingFolder.replace('class="folderhead"', 'class="folderhead is-tight"') : pendingFolder);
@@ -30154,6 +30322,12 @@ var exportMethods = {
           continue;
         }
         if (/^(\*\s*){3,}$|^(-\s*){3,}$|^(_\s*){3,}$/.test(t)) {
+          if (o.dashPageBreak && /^(-\s*){3,}$/.test(t)) {
+            if (!/^<section /.test(parts[parts.length - 1]))
+              parts.push("</section>", pageOpen);
+            firstPara = true;
+            continue;
+          }
           parts.push('<p class="div">' + esc(o.divider == null ? "#" : o.divider) + "</p>");
           firstPara = true;
           continue;
@@ -30179,6 +30353,8 @@ var exportMethods = {
         parts.push("<p" + (firstPara ? ' class="first"' : "") + ">" + runs + "</p>");
         firstPara = false;
       }
+      if (parts[parts.length - 1] === pageOpen && parts[parts.length - 2] === "</section>")
+        parts.length -= 2;
       parts.push("</section>");
     });
     if (pendingFolder) {
@@ -30810,11 +30986,12 @@ var exportMethods = {
         };
         const wake = () => {
           paint();
-          void this.ensureSystemFonts().then(() => {
+          void (async () => {
+            await this.ensureSystemFonts();
             if (rows.length)
               paint();
             sayNote();
-          });
+          })();
         };
         inp.addEventListener("focus", wake);
         inp.addEventListener("input", () => {
@@ -30972,6 +31149,7 @@ var exportMethods = {
           redrawOpts();
         }, true);
         toggle(structGrp, "folderHeadings", "Folder names as headings", "A folder becomes a heading where it begins — the folders below the deepest one every file shares, one level per folder. A note’s own headings move down to sit under them.");
+        toggle(structGrp, "dashPageBreak", "--- starts a new page", "A line of three dashes in a note breaks the page there. *** and ___ stay scene breaks.").addClass("ws-export-pages");
       }
       {
         const grp = optGroup("Typesetting");
@@ -32125,16 +32303,16 @@ var historyMethods = {
       const act = this.historyEl("div", "ws-hist-empty-act", off);
       const go = this.historyEl("button", "mod-cta", act, "Start counting");
       const hint = this.historyEl("div", "ws-report-hint", off, "Counts only — never your words, and never backwards. You can switch it off again in Settings.");
-      try {
-        this.historyFindFile().then((f) => {
+      void (async () => {
+        try {
+          const f = await this.historyFindFile();
           if (!f || !hint.isConnected)
             return;
           hint.textContent = "Your record is still in " + f.path + " — switching this on reads it back.";
-        }).catch(() => {
-        });
-      } catch (_) {
-        wsCatch("renderHistoryTab: this.historyFindFile().then((f) =>", _);
-      }
+        } catch (_) {
+          wsCatch("renderHistoryTab: historyFindFile()", _);
+        }
+      })();
       go.addEventListener("click", () => {
         void (async () => {
           if (go.disabled)
@@ -33020,6 +33198,10 @@ function wsFieldsReset(plugin) {
   plugin._activeDragCleanup = null;
   plugin._refreshTimer = null;
   plugin._selectionRaf = null;
+  plugin._twFrame = null;
+  plugin._twView = null;
+  plugin._twIdle = null;
+  plugin._twIdleView = null;
   plugin._reviving = null;
   plugin._themeObserver = null;
 }
@@ -33096,26 +33278,27 @@ function wsRegisterCommands(plugin) {
   plugin.addCommand({
     id: "open-menu-panel",
     name: "Open the menu in a panel",
-    callback: async () => {
-      if (!plugin.settings.menuDock) {
-        new import_obsidian23.Notice("Word-Smith: switch on the panel first, in the settings under Powermenu.");
-        return;
-      }
-      await plugin.openMenuPanel(true);
+    checkCallback: (checking) => {
+      if (!plugin.settings.menuDock)
+        return false;
+      if (!checking)
+        void plugin.openMenuPanel(true);
+      return true;
     }
   });
   plugin.addCommand({
     id: "toggle-retro-bar",
     name: "Toggle the Powerline bar",
-    callback: async () => {
-      if (typeof import_obsidian23.Platform !== "undefined" && import_obsidian23.Platform && import_obsidian23.Platform.isPhone && !plugin.settings.retroBarOnPhone) {
-        new import_obsidian23.Notice("Word-Smith: the bar is off on phones by default. Switch it on in the settings, under Powerline.", 6e3);
-        return;
+    checkCallback: (checking) => {
+      if (typeof import_obsidian23.Platform !== "undefined" && import_obsidian23.Platform && import_obsidian23.Platform.isPhone && !plugin.settings.retroBarOnPhone)
+        return false;
+      if (!checking) {
+        plugin.settings.enableRetroStatus = !plugin.settings.enableRetroStatus;
+        plugin.updateStatusBar();
+        plugin.updateRetroStatusBar();
+        void plugin.saveSettings(true);
       }
-      plugin.settings.enableRetroStatus = !plugin.settings.enableRetroStatus;
-      plugin.updateStatusBar();
-      plugin.updateRetroStatusBar();
-      await plugin.saveSettings(true);
+      return true;
     }
   });
   plugin.addCommand({
@@ -33240,7 +33423,6 @@ function wsWireWorkspace(plugin) {
   });
   plugin.onAppEvent(plugin.app.workspace, "editor-change", () => {
     plugin.updateRetroStatusBar();
-    plugin.typewriterScroll();
   });
   plugin.onAppEvent(plugin.app.workspace, "resize", () => {
     plugin.scheduleMaskPosition();
@@ -33283,7 +33465,6 @@ function wsWireDocument(plugin) {
   plugin.registerDomEvent(document, "keyup", (evt) => {
     plugin.updateModifierState(evt);
     plugin.updateRetroStatusBar();
-    plugin.typewriterScroll();
   });
   plugin.registerDomEvent(document, "mousemove", (evt) => {
     if (!plugin._peekArmed)
@@ -33467,22 +33648,34 @@ function wsOnLayoutReady(plugin) {
     wsCatch("onload: if (!this._loadMarks) this._loadMarks = [];", _);
   }
   if (plugin.settings.menuDock) {
-    void plugin.reviveMenuPanel().then(() => {
+    void (async () => {
+      await plugin.reviveMenuPanel();
       if (!plugin.menuPanelLeaves().length)
-        return plugin.openMenuPanel(false);
-      return null;
-    });
+        await plugin.openMenuPanel(false);
+    })();
     plugin.onAppEvent(plugin.app.workspace, "layout-change", () => {
       if (plugin.settings.menuDock)
         void plugin.reviveMenuPanel();
     });
   }
-  if (plugin.settings.markersEnabled !== true && plugin.settings.showHiddenMarkers && plugin.settings.miscEnabled) {
+  const rawM = plugin._rawData || {};
+  if (rawM.markersEnabled === void 0 && rawM.showHiddenMarkers === true && rawM.miscEnabled === true) {
     plugin.settings.markersEnabled = true;
     void plugin.saveSettings();
   }
-  plugin.settingsMirrorRestore(plugin._rawData).catch(() => false).then(() => plugin.goalsFileLoad()).then(() => plugin.refresh()).catch(() => {
-  });
+  void (async () => {
+    try {
+      await plugin.settingsMirrorRestore(plugin._rawData);
+    } catch (_) {
+      wsCatch("onLayoutReady: await plugin.settingsMirrorRestore(plugin._rawData);", _);
+    }
+    try {
+      await plugin.goalsFileLoad();
+      plugin.refresh();
+    } catch (_) {
+      wsCatch("onLayoutReady: await plugin.goalsFileLoad();", _);
+    }
+  })();
   if (plugin.settings.menuDock)
     plugin.checkAppClasses();
   if (plugin.settings.historyTracking)
@@ -33668,7 +33861,10 @@ var WordSmith = class extends import_obsidian23.Plugin {
       }
       if (!this.settings.pluginEnabled || !this.settings.treeOrder)
         return;
-      void this.treeOrderLoad().then(() => this.patchExplorerSort());
+      void (async () => {
+        await this.treeOrderLoad();
+        this.patchExplorerSort();
+      })();
     });
     this.app.workspace.onLayoutReady(() => {
       if (!this.settings.pluginEnabled || !this.zenOn())
@@ -33729,6 +33925,11 @@ var WordSmith = class extends import_obsidian23.Plugin {
     return m;
   }
   onunload() {
+    if (this._twIdle != null) {
+      window.clearTimeout(this._twIdle);
+      this._twIdle = null;
+      this._twIdleView = null;
+    }
     try {
       if (this._settingsTab)
         this._settingsTab.teardown();
@@ -34093,6 +34294,16 @@ var WordSmith = class extends import_obsidian23.Plugin {
     delete this.settings.folderGoals;
     delete this.settings.uniColCh;
     delete this.settings.exportTicksAlways;
+    for (const k of WS_RETIRED_KEYS)
+      delete wsBag(this.settings)[k];
+    for (const snap of Object.values(this.settings.barPresets || {})) {
+      if (!snap || typeof snap !== "object")
+        continue;
+      for (const k of BAR_KEYS_INERT)
+        delete wsBag(snap)[k];
+      if (Array.isArray(snap.statusRows))
+        snap.statusRows = snap.statusRows.slice(0, 1);
+    }
     delete this.settings.manuscriptRoots;
     delete this.settings.organizerRoot;
     delete this.settings.uniRootShut;
@@ -34154,15 +34365,9 @@ var WordSmith = class extends import_obsidian23.Plugin {
     }
     {
       const src = Array.isArray(this.settings.statusRows) ? this.settings.statusRows : [];
-      this.settings.statusRows = [0, 1, 2].map((i) => Object.assign({ left: "", center: "", right: "" }, src[i] || {}));
+      this.settings.statusRows = [0].map((i) => Object.assign({ left: "", center: "", right: "" }, src[i] || {}));
     }
     if (this.settings.goalShapeLabel != null || this.settings.goalRingPercent != null || this.settings.goalDisplay != null) {
-      if (this.settings.goalDisplay === "fraction")
-        this.settings.goalLabelMode = "fraction";
-      else if (this.settings.goalShapeLabel != null)
-        this.settings.goalLabelMode = this.settings.goalShapeLabel;
-      else if (this.settings.goalRingPercent === false)
-        this.settings.goalLabelMode = "none";
       delete this.settings.goalDisplay;
       delete this.settings.goalRingPercent;
       delete this.settings.goalShapeLabel;
@@ -34183,8 +34388,6 @@ var WordSmith = class extends import_obsidian23.Plugin {
     if (this.settings.goalBarCells != null)
       delete this.settings.goalBarCells;
     if (this.settings.goalLabel != null) {
-      if (this.settings.goalLabel === "none")
-        this.settings.goalLabelMode = "none";
       if (Array.isArray(this.settings.statusRows)) {
         for (const r of this.settings.statusRows) {
           for (const k of ["left", "center", "right"]) {
@@ -34518,12 +34721,6 @@ var WordSmith = class extends import_obsidian23.Plugin {
   }
   textOpt(key, whenOff) {
     if (!this.layoutOn())
-      return whenOff;
-    const v = this.settings[key];
-    return v === void 0 ? whenOff : v;
-  }
-  markerOpt(key, whenOff) {
-    if (!this.settings.markersEnabled)
       return whenOff;
     const v = this.settings[key];
     return v === void 0 ? whenOff : v;
